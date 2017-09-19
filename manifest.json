@@ -1,0 +1,21 @@
+{
+  "name": "github npm stats",
+  "version": "1.0.0",
+  "manifest_version": 2,
+  "description": "Displays npm package stats on GitHub",
+  "author": "Ahmet Katranci <https://github.com/katranci>",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },"content_scripts": [
+    {
+      "matches": ["https://github.com/*"],
+      "js": [
+        "chartjs.min.js",
+        "index.js"
+      ],
+      "css": ["styles.css"]
+    }
+  ]
+}

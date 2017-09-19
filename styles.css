@@ -1,0 +1,24 @@
+ul.pagehead-actions .npm-stats .btn svg {
+  position: relative;
+  top: 3px;
+}
+
+ul.pagehead-actions .npm-stats--inside .select-menu-modal-holder {
+  right: 0;
+}
+
+ul.pagehead-actions .npm-stats .select-menu-modal {
+  width: 400px;
+}
+
+ul.pagehead-actions .npm-stats .select-menu-modal dl {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  height: 40px;
+}
+
+ul.pagehead-actions .npm-stats .select-menu-modal dl dt {
+  font-weight: bold;
+}
