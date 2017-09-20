@@ -1,6 +1,6 @@
 {
   "name": "github npm stats",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "manifest_version": 2,
   "description": "Displays npm package stats on GitHub",
   "author": "Ahmet Katrancı <https://github.com/katranci>",

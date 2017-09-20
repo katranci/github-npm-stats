@@ -3,17 +3,16 @@ const getPackageName = () => {
 
   return fetch(`https://api.github.com/repos/${owner}/${repo}/contents/package.json`)
     .then(response => {
-      if (response.status === 404) throw new Error('Not Found')
+      if (response.status === 404) throw new Error('package.json is not found')
       return response.json()
     })
     .then(response => JSON.parse(atob(response.content)).name)
-    .catch(console.error)
 }
 
 const getStats = (packageName) => {
   return fetch(`https://api.npmjs.org/downloads/range/last-month/${packageName}`)
     .then(response => {
-      if (response.status === 404) throw new Error('Not Found')
+      if (response.status === 404) throw new Error('npm stats is not found')
       return response.json()
     })
     .then(response => {
@@ -116,6 +115,7 @@ const run = () => {
   getPackageName()
     .then(getStats)
     .then(renderStats)
+    .catch(() => {})
 }
 
 run()
