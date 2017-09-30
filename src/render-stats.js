@@ -1,32 +1,3 @@
-const getPackageName = () => {
-  const [, owner, repo ] = location.pathname.split('/')
-
-  return fetch(`https://api.github.com/repos/${owner}/${repo}/contents/package.json`)
-    .then(response => {
-      if (response.status === 404) throw new Error('package.json is not found')
-      return response.json()
-    })
-    .then(response => JSON.parse(atob(response.content)).name)
-}
-
-const getStats = (packageName) => {
-  return fetch(`https://api.npmjs.org/downloads/range/last-month/${packageName}`)
-    .then(response => {
-      if (response.status === 404) throw new Error('npm stats is not found')
-      return response.json()
-    })
-    .then(response => {
-      let { downloads } = response
-
-      const lastDay = downloads[downloads.length - 1].downloads
-      const lastWeek = downloads.slice(downloads.length - 7, downloads.length).reduce((sum, day) => (sum + day.downloads), 0)
-      const lastMonth = downloads.reduce((sum, day) => (sum + day.downloads), 0)
-
-      return { packageName, downloads, lastDay, lastWeek, lastMonth }
-    })
-    .catch(console.error)
-}
-
 const renderChart = (chartCanvas, stats) => {
   const ctx = chartCanvas.getContext('2d')
   const chart = new Chart(ctx, {
@@ -111,11 +82,4 @@ const renderStats = (stats) => {
   }
 }
 
-const run = () => {
-  getPackageName()
-    .then(getStats)
-    .then(renderStats)
-    .catch(() => {})
-}
-
-run()
+export default renderStats
