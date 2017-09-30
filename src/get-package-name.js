@@ -1,5 +1,5 @@
 const getCacheKey = (owner, repo) => {
-  return atob(owner + repo)
+  return `github.${atob(owner + repo)}`
 }
 
 const getRepoInfo = () => {

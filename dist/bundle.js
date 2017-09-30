@@ -79,7 +79,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 const run = async () => {
   const packageName = await Object(__WEBPACK_IMPORTED_MODULE_0__get_package_name__["a" /* default */])()
   const stats = await Object(__WEBPACK_IMPORTED_MODULE_1__get_stats__["a" /* default */])(packageName)
-  Object(__WEBPACK_IMPORTED_MODULE_2__render_stats__["a" /* default */])(stats)
+  Object(__WEBPACK_IMPORTED_MODULE_2__render_stats__["a" /* default */])(packageName, stats)
 }
 
 run()
@@ -91,7 +91,7 @@ run()
 
 "use strict";
 const getCacheKey = (owner, repo) => {
-  return atob(owner + repo)
+  return `github.${atob(owner + repo)}`
 }
 
 const getRepoInfo = () => {
@@ -157,7 +157,33 @@ const getPackageName = async () => {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const getStats = async (packageName) => {
+const getCacheKey = (packageName) => {
+  return `npm.${atob(packageName)}`
+}
+
+const getCachedStats = (cacheKey) => {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(cacheKey, (result) => {
+      chrome.runtime.lastError
+        ? reject(chrome.runtime.lastError)
+        : resolve(result[cacheKey])
+    })
+  })
+}
+
+const isFresh = (stats) => {
+  if (!stats) {
+    return false
+  }
+
+  const now = new Date()
+  const timeToday = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  const timeStats = new Date(stats.apiResponse.end).getTime()
+  const oneDay = 24 * 60 * 60 * 1000 // 1 day in milliseconds
+  return (timeToday - timeStats) / oneDay <= 1
+}
+
+const fetchStats = async (packageName) => {
   return fetch(`https://api.npmjs.org/downloads/range/last-month/${packageName}`)
     .then(response => {
       if (response.status === 404) throw new Error('npm stats is not found')
@@ -170,12 +196,31 @@ const getStats = async (packageName) => {
       const lastWeek = downloads.slice(downloads.length - 7, downloads.length).reduce((sum, day) => (sum + day.downloads), 0)
       const lastMonth = downloads.reduce((sum, day) => (sum + day.downloads), 0)
 
-      return { packageName, downloads, lastDay, lastWeek, lastMonth }
+      return { apiResponse: response, lastDay, lastWeek, lastMonth }
     })
-    .catch(console.error)
+}
+
+const createStats = async (cacheKey, packageName) => {
+  const stats = await fetchStats(packageName)
+
+  chrome.storage.local.set({
+    cacheKey: stats
+  })
+
+  return stats
+}
+
+const getStats = async (packageName) => {
+  const cacheKey = getCacheKey(packageName)
+  let stats = await getCachedStats(cacheKey)
+  if (!isFresh(stats)) {
+    stats = await createStats(cacheKey, packageName)
+  }
+  return stats
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (getStats);
+
 
 /***/ }),
 /* 3 */
@@ -187,10 +232,10 @@ const renderChart = (chartCanvas, stats) => {
   const chart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: stats.downloads.map(d => d.day),
+      labels: stats.apiResponse.downloads.map(d => d.day),
       datasets: [{
         label: "Downloads",
-        data: stats.downloads.map(d => d.downloads),
+        data: stats.apiResponse.downloads.map(d => d.downloads),
         borderWidth: 1,
         borderColor: '#28a745'
       }]
@@ -212,7 +257,7 @@ const renderChart = (chartCanvas, stats) => {
   })
 }
 
-const renderStats = (stats) => {
+const renderStats = (packageName, stats) => {
   const pageheadActions = document.querySelector('ul.pagehead-actions')
 
   const observer = new MutationObserver(mutations => {
@@ -228,7 +273,7 @@ const renderStats = (stats) => {
   li.className = 'npm-stats'
   li.innerHTML = `
     <div class="select-menu js-menu-container js-select-menu">
-      <a href="https://www.npmjs.com/package/${stats.packageName}" target="_blank" class="btn btn-sm btn-with-count">
+      <a href="https://www.npmjs.com/package/${packageName}" target="_blank" class="btn btn-sm btn-with-count">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="13px" viewBox="0 0 18 7">
           <path fill="#CB3837" d="M0,0h18v6H9v1H5V6H0V0z M1,5h2V2h1v3h1V1H1V5z M6,1v5h2V5h2V1H6z M8,2h1v2H8V2z M11,1v4h2V2h1v3h1V2h1v3h1V1H11z"/>
           <polygon fill="#FFFFFF" points="1,5 3,5 3,2 4,2 4,5 5,5 5,1 1,1 "/>

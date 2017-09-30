@@ -1,4 +1,30 @@
-const getStats = async (packageName) => {
+const getCacheKey = (packageName) => {
+  return `npm.${atob(packageName)}`
+}
+
+const getCachedStats = (cacheKey) => {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(cacheKey, (result) => {
+      chrome.runtime.lastError
+        ? reject(chrome.runtime.lastError)
+        : resolve(result[cacheKey])
+    })
+  })
+}
+
+const isFresh = (stats) => {
+  if (!stats) {
+    return false
+  }
+
+  const now = new Date()
+  const timeToday = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  const timeStats = new Date(stats.apiResponse.end).getTime()
+  const oneDay = 24 * 60 * 60 * 1000 // 1 day in milliseconds
+  return (timeToday - timeStats) / oneDay <= 1
+}
+
+const fetchStats = async (packageName) => {
   return fetch(`https://api.npmjs.org/downloads/range/last-month/${packageName}`)
     .then(response => {
       if (response.status === 404) throw new Error('npm stats is not found')
@@ -11,9 +37,27 @@ const getStats = async (packageName) => {
       const lastWeek = downloads.slice(downloads.length - 7, downloads.length).reduce((sum, day) => (sum + day.downloads), 0)
       const lastMonth = downloads.reduce((sum, day) => (sum + day.downloads), 0)
 
-      return { packageName, downloads, lastDay, lastWeek, lastMonth }
+      return { apiResponse: response, lastDay, lastWeek, lastMonth }
     })
-    .catch(console.error)
+}
+
+const createStats = async (cacheKey, packageName) => {
+  const stats = await fetchStats(packageName)
+
+  chrome.storage.local.set({
+    cacheKey: stats
+  })
+
+  return stats
+}
+
+const getStats = async (packageName) => {
+  const cacheKey = getCacheKey(packageName)
+  let stats = await getCachedStats(cacheKey)
+  if (!isFresh(stats)) {
+    stats = await createStats(cacheKey, packageName)
+  }
+  return stats
 }
 
 export default getStats
