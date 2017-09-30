@@ -21,7 +21,8 @@ const isFresh = (stats) => {
   const timeToday = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
   const timeStats = new Date(stats.apiResponse.end).getTime()
   const oneDay = 24 * 60 * 60 * 1000 // 1 day in milliseconds
-  return (timeToday - timeStats) / oneDay <= 1
+  const isFresh = (timeToday - timeStats) / oneDay <= 1
+  return isFresh
 }
 
 const fetchStats = async (packageName) => {
@@ -45,7 +46,7 @@ const createStats = async (cacheKey, packageName) => {
   const stats = await fetchStats(packageName)
 
   chrome.storage.local.set({
-    cacheKey: stats
+    [cacheKey]: stats
   }, () => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError)

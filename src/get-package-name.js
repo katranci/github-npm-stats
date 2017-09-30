@@ -1,3 +1,4 @@
+
 const getCacheKey = (owner, repo) => {
   return `github.${atob(owner + repo)}`
 }
@@ -23,7 +24,8 @@ const isFresh = (pkg) => {
   }
 
   const expirationTime = 30 * 24 * 60 * 60 * 1000 // 30 days in milliseconds
-  return pkg.timeCreated > Date.now() - expirationTime
+  const isFresh = pkg.timeCreated > Date.now() - expirationTime
+  return isFresh
 }
 
 const fetchPackageName = (owner, repo) => {
@@ -41,7 +43,7 @@ const createPackage = async (cacheKey, owner, repo) => {
   const pkg = { name, timeCreated }
 
   chrome.storage.local.set({
-    cacheKey: pkg
+    [cacheKey]: pkg
   }, () => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError)

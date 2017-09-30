@@ -90,6 +90,7 @@ run()
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+
 const getCacheKey = (owner, repo) => {
   return `github.${atob(owner + repo)}`
 }
@@ -115,7 +116,8 @@ const isFresh = (pkg) => {
   }
 
   const expirationTime = 30 * 24 * 60 * 60 * 1000 // 30 days in milliseconds
-  return pkg.timeCreated > Date.now() - expirationTime
+  const isFresh = pkg.timeCreated > Date.now() - expirationTime
+  return isFresh
 }
 
 const fetchPackageName = (owner, repo) => {
@@ -133,7 +135,7 @@ const createPackage = async (cacheKey, owner, repo) => {
   const pkg = { name, timeCreated }
 
   chrome.storage.local.set({
-    cacheKey: pkg
+    [cacheKey]: pkg
   }, () => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError)
@@ -184,7 +186,8 @@ const isFresh = (stats) => {
   const timeToday = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
   const timeStats = new Date(stats.apiResponse.end).getTime()
   const oneDay = 24 * 60 * 60 * 1000 // 1 day in milliseconds
-  return (timeToday - timeStats) / oneDay <= 1
+  const isFresh = (timeToday - timeStats) / oneDay <= 1
+  return isFresh
 }
 
 const fetchStats = async (packageName) => {
@@ -208,7 +211,7 @@ const createStats = async (cacheKey, packageName) => {
   const stats = await fetchStats(packageName)
 
   chrome.storage.local.set({
-    cacheKey: stats
+    [cacheKey]: stats
   }, () => {
     if (chrome.runtime.lastError) {
       console.error(chrome.runtime.lastError)
