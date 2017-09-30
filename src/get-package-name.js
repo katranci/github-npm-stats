@@ -42,6 +42,10 @@ const createPackage = async (cacheKey, owner, repo) => {
 
   chrome.storage.local.set({
     cacheKey: pkg
+  }, () => {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError)
+    }
   })
 
   return pkg

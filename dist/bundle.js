@@ -134,6 +134,10 @@ const createPackage = async (cacheKey, owner, repo) => {
 
   chrome.storage.local.set({
     cacheKey: pkg
+  }, () => {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError)
+    }
   })
 
   return pkg
@@ -205,6 +209,10 @@ const createStats = async (cacheKey, packageName) => {
 
   chrome.storage.local.set({
     cacheKey: stats
+  }, () => {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError)
+    }
   })
 
   return stats
