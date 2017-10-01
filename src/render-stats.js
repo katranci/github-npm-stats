@@ -1,41 +1,12 @@
-const getPackageName = () => {
-  const [, owner, repo ] = location.pathname.split('/')
-
-  return fetch(`https://api.github.com/repos/${owner}/${repo}/contents/package.json`)
-    .then(response => {
-      if (response.status === 404) throw new Error('package.json is not found')
-      return response.json()
-    })
-    .then(response => JSON.parse(atob(response.content)).name)
-}
-
-const getStats = (packageName) => {
-  return fetch(`https://api.npmjs.org/downloads/range/last-month/${packageName}`)
-    .then(response => {
-      if (response.status === 404) throw new Error('npm stats is not found')
-      return response.json()
-    })
-    .then(response => {
-      let { downloads } = response
-
-      const lastDay = downloads[downloads.length - 1].downloads
-      const lastWeek = downloads.slice(downloads.length - 7, downloads.length).reduce((sum, day) => (sum + day.downloads), 0)
-      const lastMonth = downloads.reduce((sum, day) => (sum + day.downloads), 0)
-
-      return { packageName, downloads, lastDay, lastWeek, lastMonth }
-    })
-    .catch(console.error)
-}
-
 const renderChart = (chartCanvas, stats) => {
   const ctx = chartCanvas.getContext('2d')
   const chart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: stats.downloads.map(d => d.day),
+      labels: stats.apiResponse.downloads.map(d => d.day),
       datasets: [{
         label: "Downloads",
-        data: stats.downloads.map(d => d.downloads),
+        data: stats.apiResponse.downloads.map(d => d.downloads),
         borderWidth: 1,
         borderColor: '#28a745'
       }]
@@ -57,7 +28,7 @@ const renderChart = (chartCanvas, stats) => {
   })
 }
 
-const renderStats = (stats) => {
+const renderStats = (packageName, stats) => {
   const pageheadActions = document.querySelector('ul.pagehead-actions')
 
   const observer = new MutationObserver(mutations => {
@@ -73,7 +44,7 @@ const renderStats = (stats) => {
   li.className = 'npm-stats'
   li.innerHTML = `
     <div class="select-menu js-menu-container js-select-menu">
-      <a href="https://www.npmjs.com/package/${stats.packageName}" target="_blank" class="btn btn-sm btn-with-count">
+      <a href="https://www.npmjs.com/package/${packageName}" target="_blank" class="btn btn-sm btn-with-count">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="13px" viewBox="0 0 18 7">
           <path fill="#CB3837" d="M0,0h18v6H9v1H5V6H0V0z M1,5h2V2h1v3h1V1H1V5z M6,1v5h2V5h2V1H6z M8,2h1v2H8V2z M11,1v4h2V2h1v3h1V2h1v3h1V1H11z"/>
           <polygon fill="#FFFFFF" points="1,5 3,5 3,2 4,2 4,5 5,5 5,1 1,1 "/>
@@ -111,11 +82,4 @@ const renderStats = (stats) => {
   }
 }
 
-const run = () => {
-  getPackageName()
-    .then(getStats)
-    .then(renderStats)
-    .catch(() => {})
-}
-
-run()
+export default renderStats
