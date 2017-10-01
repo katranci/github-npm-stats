@@ -69,17 +69,20 @@
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_package_name__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_stats__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__render_stats__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_repo_info__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_package_name__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__get_stats__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__render_stats__ = __webpack_require__(4);
+
 
 
 
 
 const run = async () => {
-  const packageName = await Object(__WEBPACK_IMPORTED_MODULE_0__get_package_name__["a" /* default */])()
-  const stats = await Object(__WEBPACK_IMPORTED_MODULE_1__get_stats__["a" /* default */])(packageName)
-  Object(__WEBPACK_IMPORTED_MODULE_2__render_stats__["a" /* default */])(packageName, stats)
+  const { owner, repo } = Object(__WEBPACK_IMPORTED_MODULE_0__get_repo_info__["a" /* default */])()
+  const packageName = await Object(__WEBPACK_IMPORTED_MODULE_1__get_package_name__["a" /* default */])(owner, repo)
+  const stats = await Object(__WEBPACK_IMPORTED_MODULE_2__get_stats__["a" /* default */])(packageName)
+  Object(__WEBPACK_IMPORTED_MODULE_3__render_stats__["a" /* default */])(packageName, stats)
 }
 
 run()
@@ -90,13 +93,21 @@ run()
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const getCacheKey = (owner, repo) => {
-  return `github.${owner}/${repo}`
-}
-
 const getRepoInfo = () => {
   const [, owner, repo ] = location.pathname.split('/')
   return { owner, repo }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (getRepoInfo);
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const getCacheKey = (owner, repo) => {
+  return `github.${owner}/${repo}`
 }
 
 const getCachedPackage = (cacheKey) => {
@@ -144,8 +155,7 @@ const createPackage = async (cacheKey, owner, repo) => {
   return pkg
 }
 
-const getPackageName = async () => {
-  const { owner, repo } = getRepoInfo()
+const getPackageName = async (owner, repo) => {
   const cacheKey = getCacheKey(owner, repo)
   let pkg = await getCachedPackage(cacheKey)
   if (!isFresh(pkg)) {
@@ -158,7 +168,7 @@ const getPackageName = async () => {
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -233,7 +243,7 @@ const getStats = async (packageName) => {
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

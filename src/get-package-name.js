@@ -2,11 +2,6 @@ const getCacheKey = (owner, repo) => {
   return `github.${owner}/${repo}`
 }
 
-const getRepoInfo = () => {
-  const [, owner, repo ] = location.pathname.split('/')
-  return { owner, repo }
-}
-
 const getCachedPackage = (cacheKey) => {
   return new Promise((resolve, reject) => {
     chrome.storage.local.get(cacheKey, (result) => {
@@ -52,8 +47,7 @@ const createPackage = async (cacheKey, owner, repo) => {
   return pkg
 }
 
-const getPackageName = async () => {
-  const { owner, repo } = getRepoInfo()
+const getPackageName = async (owner, repo) => {
   const cacheKey = getCacheKey(owner, repo)
   let pkg = await getCachedPackage(cacheKey)
   if (!isFresh(pkg)) {
