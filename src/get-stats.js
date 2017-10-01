@@ -1,5 +1,5 @@
 const getCacheKey = (packageName) => {
-  return `npm.${atob(packageName)}`
+  return `npm.${packageName}`
 }
 
 const getCachedStats = (cacheKey) => {

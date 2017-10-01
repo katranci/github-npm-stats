@@ -90,9 +90,8 @@ run()
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-
 const getCacheKey = (owner, repo) => {
-  return `github.${atob(owner + repo)}`
+  return `github.${owner}/${repo}`
 }
 
 const getRepoInfo = () => {
@@ -164,7 +163,7 @@ const getPackageName = async () => {
 
 "use strict";
 const getCacheKey = (packageName) => {
-  return `npm.${atob(packageName)}`
+  return `npm.${packageName}`
 }
 
 const getCachedStats = (cacheKey) => {
@@ -323,6 +322,7 @@ const renderStats = (packageName, stats) => {
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (renderStats);
+
 
 /***/ })
 /******/ ]);
