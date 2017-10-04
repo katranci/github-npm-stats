@@ -1,5 +1,5 @@
 import getRepoInfo from './get-repo-info'
-import getPackageName from './get-package-name'
+import getPackageName from './get-package-name/get-package-name'
 import getStats from './get-stats'
 import renderStats from './render-stats'
 
