@@ -1,9 +1,12 @@
 const getCachedPackage = (cacheKey) => {
   return new Promise((resolve, reject) => {
     chrome.storage.local.get(cacheKey, (result) => {
-      chrome.runtime.lastError
-        ? reject(chrome.runtime.lastError)
-        : resolve(result[cacheKey])
+      if (chrome.runtime.lastError) {
+        resolve(null)
+        console.warn(`[github-npm-stats] ${chrome.runtime.lastError}`)
+      } else {
+        resolve(result[cacheKey] || null)
+      }
     })
   })
 }
