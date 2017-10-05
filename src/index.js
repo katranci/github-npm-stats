@@ -1,6 +1,6 @@
 import getRepoInfo from './get-repo-info'
 import getPackageName from './get-package-name/get-package-name'
-import getStats from './get-stats'
+import getStats from './get-stats/get-stats'
 import renderStats from './render-stats'
 
 const run = async () => {
