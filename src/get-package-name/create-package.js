@@ -9,7 +9,7 @@ const createPackage = async (cacheKey, owner, repo) => {
     [cacheKey]: pkg
   }, () => {
     if (chrome.runtime.lastError) {
-      console.error(chrome.runtime.lastError)
+      console.warn(chrome.runtime.lastError)
     }
   })
 
