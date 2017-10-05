@@ -4,7 +4,17 @@ const fetchPackageName = (owner, repo) => {
       if (response.status === 404) throw new Error('package.json is not found')
       return response.json()
     })
-    .then(response => JSON.parse(atob(response.content)).name)
+    .then(response => {
+      const packageJson = JSON.parse(atob(response.content))
+      if (packageJson.private) {
+        return null
+      }
+      return packageJson.name
+    })
+    .catch((error) => {
+      console.warn(`[github-npm-stats] ${error}`)
+      return null
+    })
 }
 
 export default fetchPackageName

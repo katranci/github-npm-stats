@@ -3,6 +3,7 @@
   "devDependencies": {
     "babel-loader": "7.1.2",
     "babel-plugin-transform-es2015-modules-commonjs": "6.26.0",
+    "babel-plugin-transform-object-rest-spread": "6.26.0",
     "jest": "21.2.1",
     "webpack": "3.6.0"
   },
