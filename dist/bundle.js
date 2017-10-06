@@ -69,48 +69,265 @@
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_repo_info__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_package_name__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__get_stats__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__render_stats__ = __webpack_require__(5);
+/* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_repo_info__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_package_name_get_package_name__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__get_stats_get_stats__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__render_stats__ = __webpack_require__(15);
 
 
 
 
 
 const run = async () => {
-  const { owner, repo } = Object(__WEBPACK_IMPORTED_MODULE_0__get_repo_info__["a" /* default */])();
-  const packageName = await Object(__WEBPACK_IMPORTED_MODULE_1__get_package_name__["a" /* default */])(owner, repo);
-  const stats = await Object(__WEBPACK_IMPORTED_MODULE_2__get_stats__["a" /* default */])(packageName);
+  const { owner, repo } = Object(__WEBPACK_IMPORTED_MODULE_0__get_repo_info__["a" /* default */])() || {};
+  if (!owner) return;
+
+  const packageName = await Object(__WEBPACK_IMPORTED_MODULE_1__get_package_name_get_package_name__["a" /* default */])(owner, repo);
+  if (!packageName) return;
+
+  const stats = await Object(__WEBPACK_IMPORTED_MODULE_2__get_stats_get_stats__["a" /* default */])(packageName);
+  if (!stats) return;
+
   Object(__WEBPACK_IMPORTED_MODULE_3__render_stats__["a" /* default */])(packageName, stats);
 };
 
-run();
+if (!process || !process.env || process.env.NODE_ENV !== 'test') {
+  run();
+}
+
+/* harmony default export */ __webpack_exports__["default"] = (run);
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(1)))
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports) {
+
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+
+/***/ }),
+/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_location__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_location___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_location__);
-
-
 const getRepoInfo = () => {
-  const [, owner, repo] = __WEBPACK_IMPORTED_MODULE_0_location___default.a.pathname.split('/');
+  const [, owner, repo] = location.pathname.split('/');
+  if (!owner || !repo) {
+    return null;
+  }
   return { owner, repo };
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (getRepoInfo);
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports) {
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = location;
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_cache_key__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_cached_package__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__is_fresh__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__create_package__ = __webpack_require__(7);
+
+
+
+
+
+const getPackageName = async (owner, repo) => {
+  const cacheKey = Object(__WEBPACK_IMPORTED_MODULE_0__get_cache_key__["a" /* default */])(owner, repo);
+  let pkg = await Object(__WEBPACK_IMPORTED_MODULE_1__get_cached_package__["a" /* default */])(cacheKey);
+  if (!Object(__WEBPACK_IMPORTED_MODULE_2__is_fresh__["a" /* default */])(pkg)) pkg = await Object(__WEBPACK_IMPORTED_MODULE_3__create_package__["a" /* default */])(cacheKey, owner, repo);
+  return pkg ? pkg.name : null;
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (getPackageName);
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -118,14 +335,33 @@ const getCacheKey = (owner, repo) => {
   return `github.${owner}/${repo}`;
 };
 
+/* harmony default export */ __webpack_exports__["a"] = (getCacheKey);
+
+/***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 const getCachedPackage = cacheKey => {
   return new Promise((resolve, reject) => {
     chrome.storage.local.get(cacheKey, result => {
-      chrome.runtime.lastError ? reject(chrome.runtime.lastError) : resolve(result[cacheKey]);
+      if (chrome.runtime.lastError) {
+        resolve(null);
+        console.warn(`[github-npm-stats] ${chrome.runtime.lastError}`);
+      } else {
+        resolve(result[cacheKey] || null);
+      }
     });
   });
 };
 
+/* harmony default export */ __webpack_exports__["a"] = (getCachedPackage);
+
+/***/ }),
+/* 6 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 const isFresh = pkg => {
   if (!pkg) {
     return false;
@@ -136,15 +372,20 @@ const isFresh = pkg => {
   return isFresh;
 };
 
-const fetchPackageName = (owner, repo) => {
-  return fetch(`https://api.github.com/repos/${owner}/${repo}/contents/package.json`).then(response => {
-    if (response.status === 404) throw new Error('package.json is not found');
-    return response.json();
-  }).then(response => JSON.parse(atob(response.content)).name);
-};
+/* harmony default export */ __webpack_exports__["a"] = (isFresh);
+
+/***/ }),
+/* 7 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__fetch_package_name__ = __webpack_require__(8);
+
 
 const createPackage = async (cacheKey, owner, repo) => {
-  const name = await fetchPackageName(owner, repo);
+  const name = await Object(__WEBPACK_IMPORTED_MODULE_0__fetch_package_name__["a" /* default */])(owner, repo);
+  if (!name) return null;
+
   const timeCreated = Date.now();
   const pkg = { name, timeCreated };
 
@@ -152,26 +393,63 @@ const createPackage = async (cacheKey, owner, repo) => {
     [cacheKey]: pkg
   }, () => {
     if (chrome.runtime.lastError) {
-      console.error(chrome.runtime.lastError);
+      console.warn(chrome.runtime.lastError);
     }
   });
 
   return pkg;
 };
 
-const getPackageName = async (owner, repo) => {
-  const cacheKey = getCacheKey(owner, repo);
-  let pkg = await getCachedPackage(cacheKey);
-  if (!isFresh(pkg)) {
-    pkg = await createPackage(cacheKey, owner, repo);
-  }
-  return pkg.name;
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (getPackageName);
+/* harmony default export */ __webpack_exports__["a"] = (createPackage);
 
 /***/ }),
-/* 4 */
+/* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const fetchPackageName = (owner, repo) => {
+  return fetch(`https://api.github.com/repos/${owner}/${repo}/contents/package.json`).then(response => {
+    if (response.status === 404) throw new Error('package.json is not found');
+    return response.json();
+  }).then(response => {
+    const packageJson = JSON.parse(atob(response.content));
+    if (packageJson.private) {
+      return null;
+    }
+    return packageJson.name;
+  }).catch(error => {
+    console.warn(`[github-npm-stats] ${error}`);
+    return null;
+  });
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (fetchPackageName);
+
+/***/ }),
+/* 9 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_cache_key__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_cached_stats__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__is_fresh__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__create_stats__ = __webpack_require__(13);
+
+
+
+
+
+const getStats = async packageName => {
+  const cacheKey = Object(__WEBPACK_IMPORTED_MODULE_0__get_cache_key__["a" /* default */])(packageName);
+  let stats = await Object(__WEBPACK_IMPORTED_MODULE_1__get_cached_stats__["a" /* default */])(cacheKey);
+  if (!Object(__WEBPACK_IMPORTED_MODULE_2__is_fresh__["a" /* default */])(stats)) stats = await Object(__WEBPACK_IMPORTED_MODULE_3__create_stats__["a" /* default */])(cacheKey, packageName);
+  return stats;
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (getStats);
+
+/***/ }),
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -179,14 +457,33 @@ const getCacheKey = packageName => {
   return `npm.${packageName}`;
 };
 
+/* harmony default export */ __webpack_exports__["a"] = (getCacheKey);
+
+/***/ }),
+/* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 const getCachedStats = cacheKey => {
   return new Promise((resolve, reject) => {
     chrome.storage.local.get(cacheKey, result => {
-      chrome.runtime.lastError ? reject(chrome.runtime.lastError) : resolve(result[cacheKey]);
+      if (chrome.runtime.lastError) {
+        resolve(null);
+        console.warn(`[github-npm-stats] ${chrome.runtime.lastError}`);
+      } else {
+        resolve(result[cacheKey] || null);
+      }
     });
   });
 };
 
+/* harmony default export */ __webpack_exports__["a"] = (getCachedStats);
+
+/***/ }),
+/* 12 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 const isFresh = stats => {
   if (!stats) {
     return false;
@@ -200,23 +497,19 @@ const isFresh = stats => {
   return isFresh;
 };
 
-const fetchStats = async packageName => {
-  return fetch(`https://api.npmjs.org/downloads/range/last-month/${packageName}`).then(response => {
-    if (response.status === 404) throw new Error('npm stats is not found');
-    return response.json();
-  }).then(response => {
-    let { downloads } = response;
+/* harmony default export */ __webpack_exports__["a"] = (isFresh);
 
-    const lastDay = downloads[downloads.length - 1].downloads;
-    const lastWeek = downloads.slice(downloads.length - 7, downloads.length).reduce((sum, day) => sum + day.downloads, 0);
-    const lastMonth = downloads.reduce((sum, day) => sum + day.downloads, 0);
+/***/ }),
+/* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-    return { apiResponse: response, lastDay, lastWeek, lastMonth };
-  });
-};
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__fetch_stats__ = __webpack_require__(14);
+
 
 const createStats = async (cacheKey, packageName) => {
-  const stats = await fetchStats(packageName);
+  const stats = await Object(__WEBPACK_IMPORTED_MODULE_0__fetch_stats__["a" /* default */])(packageName);
+  if (!stats) return null;
 
   chrome.storage.local.set({
     [cacheKey]: stats
@@ -229,19 +522,35 @@ const createStats = async (cacheKey, packageName) => {
   return stats;
 };
 
-const getStats = async packageName => {
-  const cacheKey = getCacheKey(packageName);
-  let stats = await getCachedStats(cacheKey);
-  if (!isFresh(stats)) {
-    stats = await createStats(cacheKey, packageName);
-  }
-  return stats;
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (getStats);
+/* harmony default export */ __webpack_exports__["a"] = (createStats);
 
 /***/ }),
-/* 5 */
+/* 14 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const fetchStats = async packageName => {
+  return fetch(`https://api.npmjs.org/downloads/range/last-month/${packageName}`).then(response => {
+    if (response.status === 404) throw new Error('npm stats is not found');
+    return response.json();
+  }).then(response => {
+    let { downloads } = response;
+
+    const lastDay = downloads[downloads.length - 1].downloads;
+    const lastWeek = downloads.slice(downloads.length - 7, downloads.length).reduce((sum, day) => sum + day.downloads, 0);
+    const lastMonth = downloads.reduce((sum, day) => sum + day.downloads, 0);
+
+    return { apiResponse: response, lastDay, lastWeek, lastMonth };
+  }).catch(error => {
+    console.warn(`[github-npm-stats] ${error}`);
+    return null;
+  });
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (fetchStats);
+
+/***/ }),
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
