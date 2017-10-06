@@ -1,8 +1,7 @@
-import getCachedPackage from '../get-cached-package'
+import getCachedStats from '../get-cached-stats'
 
-const pkg = {
-  name: 'vue',
-  timeCreated: Date.now()
+const stats = {
+  lastDay: 10000
 }
 const warnFunc = console.warn.bind(console)
 
@@ -15,25 +14,25 @@ afterAll(() => {
   chrome.runtime.lastError = null
 })
 
-describe('getCachedPackage', () => {
-  it('resolves with cached package if it exists in storage', async () => {
+describe('getCachedStats', () => {
+  it('resolves with cached stats if it exists in storage', async () => {
     chrome.storage.local.get.mockImplementationOnce((cacheKey, callback) => {
       callback({
-        [cacheKey]: pkg
+        [cacheKey]: stats
       })
     })
 
-    const cachedPackage = await getCachedPackage('github.vuejs/vue')
-    expect(cachedPackage).toBe(pkg)
+    const cachedStats = await getCachedStats('npm.vue')
+    expect(cachedStats).toBe(stats)
   })
 
-  it('resolves with null if there is no cache belonging to the package', async () => {
+  it('resolves with null if there is no cache belonging to the stats', async () => {
     chrome.storage.local.get.mockImplementationOnce((cacheKey, callback) => {
       callback({})
     })
 
-    const cachedPackage = await getCachedPackage('github.vuejs/vue')
-    expect(cachedPackage).toBe(null)
+    const cachedStats = await getCachedStats('npm.vue')
+    expect(cachedStats).toBe(null)
   })
 
   it('resolves with null if there is an error in chrome runtime', async () => {
@@ -42,8 +41,8 @@ describe('getCachedPackage', () => {
       callback({})
     })
 
-    const cachedPackage = await getCachedPackage('github.vuejs/vue')
-    expect(cachedPackage).toBe(null)
+    const cachedStats = await getCachedStats('npm.vue')
+    expect(cachedStats).toBe(null)
     expect(console.warn.mock.calls.length).toBe(1)
   })
 })
