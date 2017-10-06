@@ -16,7 +16,7 @@ afterAll(() => {
 })
 
 describe('createPackage', () => {
-  it('returns package that consist of name that is fetched and timestamp', async () => {
+  it('returns package that consist of name and timestamp', async () => {
     const pkg = await createPackage('cache-key', 'vuejs', 'vue')
 
     expect(fetchPackageNameMock.mock.calls.length).toBe(1)
