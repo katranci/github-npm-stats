@@ -13,6 +13,10 @@ const fetchStats = async (packageName) => {
 
       return { apiResponse: response, lastDay, lastWeek, lastMonth }
     })
+    .catch((error) => {
+      console.warn(`[github-npm-stats] ${error}`)
+      return null
+    })
 }
 
 export default fetchStats
