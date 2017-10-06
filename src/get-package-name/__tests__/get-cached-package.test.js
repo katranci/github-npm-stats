@@ -33,7 +33,7 @@ describe('getCachedPackage', () => {
     })
 
     const cachedPackage = await getCachedPackage('github.vuejs/vue')
-    expect(cachedPackage).toBe(null)
+    expect(cachedPackage).toBeNull()
   })
 
   it('resolves with null if there is an error in chrome runtime', async () => {
@@ -43,7 +43,7 @@ describe('getCachedPackage', () => {
     })
 
     const cachedPackage = await getCachedPackage('github.vuejs/vue')
-    expect(cachedPackage).toBe(null)
-    expect(console.warn.mock.calls.length).toBe(1)
+    expect(cachedPackage).toBeNull()
+    expect(console.warn).toHaveBeenCalled()
   })
 })

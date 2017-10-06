@@ -12,9 +12,9 @@ describe('getRepoInfo', () => {
 
   it('returns null for a non-repo url', () => {
     location.pathname = '/'
-    expect(getRepoInfo()).toBe(null)
+    expect(getRepoInfo()).toBeNull()
 
     location.pathname = '/explore'
-    expect(getRepoInfo()).toBe(null)
+    expect(getRepoInfo()).toBeNull()
   })
 })

@@ -61,7 +61,7 @@ describe('fetchStats', () => {
     })
 
     const packageName = await fetchStats('vue')
-    expect(packageName).toBe(null)
-    expect(console.warn.mock.calls.length).toBe(1)
+    expect(packageName).toBeNull()
+    expect(console.warn).toHaveBeenCalled()
   })
 })

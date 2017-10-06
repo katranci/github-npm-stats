@@ -25,8 +25,7 @@ describe('createStats', () => {
 
     const stats = await createStats('cache-key', 'vue')
 
-    expect(fetchStatsMock.mock.calls.length).toBe(1)
-    expect(fetchStatsMock.mock.calls[0]).toEqual(['vue'])
+    expect(fetchStatsMock).toHaveBeenCalledWith('vue')
     expect(stats).toEqual({
       lastDay: 10000
     })

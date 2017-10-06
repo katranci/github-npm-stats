@@ -32,7 +32,7 @@ describe('getCachedStats', () => {
     })
 
     const cachedStats = await getCachedStats('npm.vue')
-    expect(cachedStats).toBe(null)
+    expect(cachedStats).toBeNull()
   })
 
   it('resolves with null if there is an error in chrome runtime', async () => {
@@ -42,7 +42,7 @@ describe('getCachedStats', () => {
     })
 
     const cachedStats = await getCachedStats('npm.vue')
-    expect(cachedStats).toBe(null)
-    expect(console.warn.mock.calls.length).toBe(1)
+    expect(cachedStats).toBeNull()
+    expect(console.warn).toHaveBeenCalled()
   })
 })

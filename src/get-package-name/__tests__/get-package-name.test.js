@@ -20,16 +20,10 @@ describe('getPackageName', () => {
 
     const packageName = await getPackageName('vuejs', 'vue')
 
-    expect(getCacheKeyMock.mock.calls.length).toBe(1)
-    expect(getCacheKeyMock.mock.calls[0]).toEqual(['vuejs', 'vue'])
-
-    expect(getCachedPackageMock.mock.calls.length).toBe(1)
-    expect(getCachedPackageMock.mock.calls[0]).toEqual(['cache-key'])
-
-    expect(isFreshMock.mock.calls.length).toBe(1)
-    expect(isFreshMock.mock.calls[0]).toEqual([cachedPackage])
-
-    expect(createPackageMock.mock.calls.length).toBe(0)
+    expect(getCacheKeyMock).toHaveBeenCalledWith('vuejs', 'vue')
+    expect(getCachedPackageMock).toHaveBeenCalledWith('cache-key')
+    expect(isFreshMock).toHaveBeenCalledWith(cachedPackage)
+    expect(createPackageMock).not.toHaveBeenCalled()
     expect(packageName).toBe(cachedPackage.name)
   })
 
@@ -41,9 +35,7 @@ describe('getPackageName', () => {
 
     const packageName = await getPackageName('vuejs', 'vuex')
 
-    expect(createPackageMock.mock.calls.length).toBe(1)
-    expect(createPackageMock.mock.calls[0]).toEqual(['cache-key', 'vuejs', 'vuex'])
-
+    expect(createPackageMock).toHaveBeenCalledWith('cache-key', 'vuejs', 'vuex')
     expect(packageName).toBe(pkg.name)
   })
 

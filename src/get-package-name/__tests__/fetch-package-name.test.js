@@ -46,8 +46,8 @@ describe('fetchPackageName', () => {
     })
 
     const packageName = await fetchPackageName('vuejs', 'vue')
-    expect(packageName).toBe(null)
-    expect(console.warn.mock.calls.length).toBe(1)
+    expect(packageName).toBeNull()
+    expect(console.warn).toHaveBeenCalled()
   })
 
   it('returns null if package is private', async () => {
@@ -64,6 +64,6 @@ describe('fetchPackageName', () => {
     })
 
     const packageName = await fetchPackageName('vuejs', 'vue')
-    expect(packageName).toBe(null)
+    expect(packageName).toBeNull()
   })
 })

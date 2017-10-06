@@ -20,16 +20,10 @@ describe('getStats', () => {
 
     const stats = await getStats('vue')
 
-    expect(getCacheKeyMock.mock.calls.length).toBe(1)
-    expect(getCacheKeyMock.mock.calls[0]).toEqual(['vue'])
-
-    expect(getCachedStatsMock.mock.calls.length).toBe(1)
-    expect(getCachedStatsMock.mock.calls[0]).toEqual(['cache-key'])
-
-    expect(isFreshMock.mock.calls.length).toBe(1)
-    expect(isFreshMock.mock.calls[0]).toEqual([cachedStats])
-
-    expect(createStatsMock.mock.calls.length).toBe(0)
+    expect(getCacheKeyMock).toHaveBeenCalledWith('vue')
+    expect(getCachedStatsMock).toHaveBeenCalledWith('cache-key')
+    expect(isFreshMock).toHaveBeenCalledWith(cachedStats)
+    expect(createStatsMock).not.toHaveBeenCalled()
     expect(stats).toBe(cachedStats)
   })
 
@@ -41,9 +35,7 @@ describe('getStats', () => {
 
     const stats = await getStats('vue')
 
-    expect(createStatsMock.mock.calls.length).toBe(1)
-    expect(createStatsMock.mock.calls[0]).toEqual(['cache-key', 'vue'])
-
+    expect(createStatsMock).toHaveBeenCalledWith('cache-key', 'vue')
     expect(stats).toBe(createdStats)
   })
 

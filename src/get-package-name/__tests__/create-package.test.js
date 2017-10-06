@@ -25,8 +25,7 @@ describe('createPackage', () => {
 
     const pkg = await createPackage('cache-key', 'vuejs', 'vue')
 
-    expect(fetchPackageNameMock.mock.calls.length).toBe(1)
-    expect(fetchPackageNameMock.mock.calls[0]).toEqual(['vuejs', 'vue'])
+    expect(fetchPackageNameMock).toHaveBeenCalledWith('vuejs', 'vue')
     expect(pkg).toEqual({
       name: 'vue',
       timeCreated: now
