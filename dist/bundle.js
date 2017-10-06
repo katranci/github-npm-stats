@@ -69,176 +69,184 @@
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_package_name__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_stats__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__render_stats__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_repo_info__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_package_name__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__get_stats__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__render_stats__ = __webpack_require__(5);
+
 
 
 
 
 const run = async () => {
-  const packageName = await Object(__WEBPACK_IMPORTED_MODULE_0__get_package_name__["a" /* default */])()
-  const stats = await Object(__WEBPACK_IMPORTED_MODULE_1__get_stats__["a" /* default */])(packageName)
-  Object(__WEBPACK_IMPORTED_MODULE_2__render_stats__["a" /* default */])(packageName, stats)
-}
+  const { owner, repo } = Object(__WEBPACK_IMPORTED_MODULE_0__get_repo_info__["a" /* default */])();
+  const packageName = await Object(__WEBPACK_IMPORTED_MODULE_1__get_package_name__["a" /* default */])(owner, repo);
+  const stats = await Object(__WEBPACK_IMPORTED_MODULE_2__get_stats__["a" /* default */])(packageName);
+  Object(__WEBPACK_IMPORTED_MODULE_3__render_stats__["a" /* default */])(packageName, stats);
+};
 
-run()
-
+run();
 
 /***/ }),
 /* 1 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const getCacheKey = (owner, repo) => {
-  return `github.${owner}/${repo}`
-}
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_location__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_location___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_location__);
+
 
 const getRepoInfo = () => {
-  const [, owner, repo ] = location.pathname.split('/')
-  return { owner, repo }
-}
+  const [, owner, repo] = __WEBPACK_IMPORTED_MODULE_0_location___default.a.pathname.split('/');
+  return { owner, repo };
+};
 
-const getCachedPackage = (cacheKey) => {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get(cacheKey, (result) => {
-      chrome.runtime.lastError
-        ? reject(chrome.runtime.lastError)
-        : resolve(result[cacheKey])
-    })
-  })
-}
-
-const isFresh = (pkg) => {
-  if (!pkg) {
-    return false
-  }
-
-  const expirationTime = 30 * 24 * 60 * 60 * 1000 // 30 days in milliseconds
-  const isFresh = pkg.timeCreated > Date.now() - expirationTime
-  return isFresh
-}
-
-const fetchPackageName = (owner, repo) => {
-  return fetch(`https://api.github.com/repos/${owner}/${repo}/contents/package.json`)
-    .then(response => {
-      if (response.status === 404) throw new Error('package.json is not found')
-      return response.json()
-    })
-    .then(response => JSON.parse(atob(response.content)).name)
-}
-
-const createPackage = async (cacheKey, owner, repo) => {
-  const name = await fetchPackageName(owner, repo)
-  const timeCreated = Date.now()
-  const pkg = { name, timeCreated }
-
-  chrome.storage.local.set({
-    [cacheKey]: pkg
-  }, () => {
-    if (chrome.runtime.lastError) {
-      console.error(chrome.runtime.lastError)
-    }
-  })
-
-  return pkg
-}
-
-const getPackageName = async () => {
-  const { owner, repo } = getRepoInfo()
-  const cacheKey = getCacheKey(owner, repo)
-  let pkg = await getCachedPackage(cacheKey)
-  if (!isFresh(pkg)) {
-    pkg = await createPackage(cacheKey, owner, repo)
-  }
-  return pkg.name
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (getPackageName);
-
+/* harmony default export */ __webpack_exports__["a"] = (getRepoInfo);
 
 /***/ }),
 /* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports) {
 
-"use strict";
-const getCacheKey = (packageName) => {
-  return `npm.${packageName}`
-}
-
-const getCachedStats = (cacheKey) => {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.get(cacheKey, (result) => {
-      chrome.runtime.lastError
-        ? reject(chrome.runtime.lastError)
-        : resolve(result[cacheKey])
-    })
-  })
-}
-
-const isFresh = (stats) => {
-  if (!stats) {
-    return false
-  }
-
-  const now = new Date()
-  const timeToday = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-  const timeStats = new Date(stats.apiResponse.end).getTime()
-  const oneDay = 24 * 60 * 60 * 1000 // 1 day in milliseconds
-  const isFresh = (timeToday - timeStats) / oneDay <= 1
-  return isFresh
-}
-
-const fetchStats = async (packageName) => {
-  return fetch(`https://api.npmjs.org/downloads/range/last-month/${packageName}`)
-    .then(response => {
-      if (response.status === 404) throw new Error('npm stats is not found')
-      return response.json()
-    })
-    .then(response => {
-      let { downloads } = response
-
-      const lastDay = downloads[downloads.length - 1].downloads
-      const lastWeek = downloads.slice(downloads.length - 7, downloads.length).reduce((sum, day) => (sum + day.downloads), 0)
-      const lastMonth = downloads.reduce((sum, day) => (sum + day.downloads), 0)
-
-      return { apiResponse: response, lastDay, lastWeek, lastMonth }
-    })
-}
-
-const createStats = async (cacheKey, packageName) => {
-  const stats = await fetchStats(packageName)
-
-  chrome.storage.local.set({
-    [cacheKey]: stats
-  }, () => {
-    if (chrome.runtime.lastError) {
-      console.error(chrome.runtime.lastError)
-    }
-  })
-
-  return stats
-}
-
-const getStats = async (packageName) => {
-  const cacheKey = getCacheKey(packageName)
-  let stats = await getCachedStats(cacheKey)
-  if (!isFresh(stats)) {
-    stats = await createStats(cacheKey, packageName)
-  }
-  return stats
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (getStats);
-
+module.exports = location;
 
 /***/ }),
 /* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+const getCacheKey = (owner, repo) => {
+  return `github.${owner}/${repo}`;
+};
+
+const getCachedPackage = cacheKey => {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(cacheKey, result => {
+      chrome.runtime.lastError ? reject(chrome.runtime.lastError) : resolve(result[cacheKey]);
+    });
+  });
+};
+
+const isFresh = pkg => {
+  if (!pkg) {
+    return false;
+  }
+
+  const expirationTime = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+  const isFresh = pkg.timeCreated > Date.now() - expirationTime;
+  return isFresh;
+};
+
+const fetchPackageName = (owner, repo) => {
+  return fetch(`https://api.github.com/repos/${owner}/${repo}/contents/package.json`).then(response => {
+    if (response.status === 404) throw new Error('package.json is not found');
+    return response.json();
+  }).then(response => JSON.parse(atob(response.content)).name);
+};
+
+const createPackage = async (cacheKey, owner, repo) => {
+  const name = await fetchPackageName(owner, repo);
+  const timeCreated = Date.now();
+  const pkg = { name, timeCreated };
+
+  chrome.storage.local.set({
+    [cacheKey]: pkg
+  }, () => {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError);
+    }
+  });
+
+  return pkg;
+};
+
+const getPackageName = async (owner, repo) => {
+  const cacheKey = getCacheKey(owner, repo);
+  let pkg = await getCachedPackage(cacheKey);
+  if (!isFresh(pkg)) {
+    pkg = await createPackage(cacheKey, owner, repo);
+  }
+  return pkg.name;
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (getPackageName);
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const getCacheKey = packageName => {
+  return `npm.${packageName}`;
+};
+
+const getCachedStats = cacheKey => {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(cacheKey, result => {
+      chrome.runtime.lastError ? reject(chrome.runtime.lastError) : resolve(result[cacheKey]);
+    });
+  });
+};
+
+const isFresh = stats => {
+  if (!stats) {
+    return false;
+  }
+
+  const now = new Date();
+  const timeToday = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const timeStats = new Date(stats.apiResponse.end).getTime();
+  const oneDay = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+  const isFresh = (timeToday - timeStats) / oneDay <= 1;
+  return isFresh;
+};
+
+const fetchStats = async packageName => {
+  return fetch(`https://api.npmjs.org/downloads/range/last-month/${packageName}`).then(response => {
+    if (response.status === 404) throw new Error('npm stats is not found');
+    return response.json();
+  }).then(response => {
+    let { downloads } = response;
+
+    const lastDay = downloads[downloads.length - 1].downloads;
+    const lastWeek = downloads.slice(downloads.length - 7, downloads.length).reduce((sum, day) => sum + day.downloads, 0);
+    const lastMonth = downloads.reduce((sum, day) => sum + day.downloads, 0);
+
+    return { apiResponse: response, lastDay, lastWeek, lastMonth };
+  });
+};
+
+const createStats = async (cacheKey, packageName) => {
+  const stats = await fetchStats(packageName);
+
+  chrome.storage.local.set({
+    [cacheKey]: stats
+  }, () => {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError);
+    }
+  });
+
+  return stats;
+};
+
+const getStats = async packageName => {
+  const cacheKey = getCacheKey(packageName);
+  let stats = await getCachedStats(cacheKey);
+  if (!isFresh(stats)) {
+    stats = await createStats(cacheKey, packageName);
+  }
+  return stats;
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (getStats);
+
+/***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 const renderChart = (chartCanvas, stats) => {
-  const ctx = chartCanvas.getContext('2d')
+  const ctx = chartCanvas.getContext('2d');
   const chart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -257,30 +265,30 @@ const renderChart = (chartCanvas, stats) => {
       scales: {
         yAxes: [{
           ticks: {
-            callback (value, index, values) {
-              return value.toLocaleString()
+            callback(value, index, values) {
+              return value.toLocaleString();
             }
           }
         }]
       }
     }
-  })
-}
+  });
+};
 
 const renderStats = (packageName, stats) => {
-  const pageheadActions = document.querySelector('ul.pagehead-actions')
+  const pageheadActions = document.querySelector('ul.pagehead-actions');
 
   const observer = new MutationObserver(mutations => {
-    const chartCanvas = document.getElementById('npm-stats-chart')
-    if (!chartCanvas) return
-    observer.disconnect()
-    renderChart(chartCanvas, stats)
-  })
+    const chartCanvas = document.getElementById('npm-stats-chart');
+    if (!chartCanvas) return;
+    observer.disconnect();
+    renderChart(chartCanvas, stats);
+  });
 
-  observer.observe(pageheadActions, { childList: true })
+  observer.observe(pageheadActions, { childList: true });
 
-  const li = document.createElement('li')
-  li.className = 'npm-stats'
+  const li = document.createElement('li');
+  li.className = 'npm-stats';
   li.innerHTML = `
     <div class="select-menu js-menu-container js-select-menu">
       <a href="https://www.npmjs.com/package/${packageName}" target="_blank" class="btn btn-sm btn-with-count">
@@ -312,17 +320,16 @@ const renderStats = (packageName, stats) => {
         </div>
       </div>
     </div>
-  `
-  pageheadActions.appendChild(li)
+  `;
+  pageheadActions.appendChild(li);
 
-  const availSpace = window.innerWidth - li.getBoundingClientRect().right > 300
+  const availSpace = window.innerWidth - li.getBoundingClientRect().right > 300;
   if (!availSpace) {
-    li.classList.add('npm-stats--inside')
+    li.classList.add('npm-stats--inside');
   }
-}
+};
 
 /* harmony default export */ __webpack_exports__["a"] = (renderStats);
-
 
 /***/ })
 /******/ ]);
