@@ -46,4 +46,13 @@ describe('getPackageName', () => {
 
     expect(packageName).toBe(pkg.name)
   })
+
+  it('returns null if creating package has failed', async () => {
+    isFreshMock.mockReturnValue(false)
+    createPackageMock.mockReturnValue(Promise.resolve(null))
+
+    const packageName = await getPackageName('vuejs', 'vue')
+
+    expect(packageName).toBeNull()
+  })
 })

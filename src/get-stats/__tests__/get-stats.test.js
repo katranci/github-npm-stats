@@ -46,4 +46,13 @@ describe('getStats', () => {
 
     expect(stats).toBe(createdStats)
   })
+
+  it('returns null if creating stats has failed', async () => {
+    isFreshMock.mockReturnValue(false)
+    createStatsMock.mockReturnValue(Promise.resolve(null))
+
+    const stats = await getStats('vue')
+
+    expect(stats).toBeNull()
+  })
 })

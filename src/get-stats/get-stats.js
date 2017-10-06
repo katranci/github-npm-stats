@@ -6,9 +6,7 @@ import createStats from './create-stats'
 const getStats = async (packageName) => {
   const cacheKey = getCacheKey(packageName)
   let stats = await getCachedStats(cacheKey)
-  if (!isFresh(stats)) {
-    stats = await createStats(cacheKey, packageName)
-  }
+  if (!isFresh(stats)) stats = await createStats(cacheKey, packageName)
   return stats
 }
 
