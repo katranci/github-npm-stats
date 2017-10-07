@@ -14,7 +14,7 @@ afterAll(() => {
   Date.now = nowFunc
 })
 
-beforeEach(() => {
+afterEach(() => {
   fetchPackageNameMock.mockReset()
   chrome.storage.local.set.mockReset()
 })

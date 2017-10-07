@@ -22,9 +22,14 @@ afterAll(() => {
   console.warn = warnFunc
 })
 
+afterEach(() => {
+  fetch.mockReset()
+  console.warn.mockReset()
+})
+
 describe('fetchPackageName', () => {
   it('retrieves name from package.json file of the given repo', async () => {
-    fetch.mockImplementationOnce((url) => {
+    fetch.mockImplementation((url) => {
       expect(url).toBe('https://api.github.com/repos/vuejs/vue/contents/package.json')
 
       return Promise.resolve({
@@ -39,7 +44,7 @@ describe('fetchPackageName', () => {
   })
 
   it('returns null if api returns with 404', async () => {
-    fetch.mockImplementationOnce((url) => {
+    fetch.mockImplementation((url) => {
       return Promise.resolve({
         status: 404
       })
@@ -50,8 +55,20 @@ describe('fetchPackageName', () => {
     expect(console.warn).toHaveBeenCalled()
   })
 
+  it('returns null if api returns with 403', async () => {
+    fetch.mockImplementation((url) => {
+      return Promise.resolve({
+        status: 403
+      })
+    })
+
+    const packageName = await fetchPackageName('vuejs', 'vue')
+    expect(packageName).toBeNull()
+    expect(console.warn).toHaveBeenCalledWith('[github-npm-stats] Error: Hourly GitHub api rate limit exceeded')
+  })
+
   it('returns null if package is private', async () => {
-    fetch.mockImplementationOnce((url) => {
+    fetch.mockImplementation((url) => {
       return Promise.resolve({
         json () {
           return Promise.resolve(apiResponse({

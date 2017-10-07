@@ -10,7 +10,7 @@ import getPackageNameMock from '../get-package-name/get-package-name'
 import getStatsMock from '../get-stats/get-stats'
 import renderStatsMock from '../render-stats'
 
-beforeEach(() => {
+afterEach(() => {
   getRepoInfoMock.mockReset()
   getPackageNameMock.mockReset()
   getStatsMock.mockReset()
