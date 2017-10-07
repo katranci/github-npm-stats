@@ -321,7 +321,7 @@ const getPackageName = async (owner, repo) => {
   const cacheKey = Object(__WEBPACK_IMPORTED_MODULE_0__get_cache_key__["a" /* default */])(owner, repo);
   let pkg = await Object(__WEBPACK_IMPORTED_MODULE_1__get_cached_package__["a" /* default */])(cacheKey);
   if (!Object(__WEBPACK_IMPORTED_MODULE_2__is_fresh__["a" /* default */])(pkg)) pkg = await Object(__WEBPACK_IMPORTED_MODULE_3__create_package__["a" /* default */])(cacheKey, owner, repo);
-  return pkg ? pkg.name : null;
+  return pkg && pkg.name !== 'N/A' ? pkg.name : null;
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (getPackageName);
@@ -409,13 +409,14 @@ const createPackage = async (cacheKey, owner, repo) => {
 "use strict";
 const fetchPackageName = (owner, repo) => {
   return fetch(`https://api.github.com/repos/${owner}/${repo}/contents/package.json`).then(response => {
-    if (response.status === 404) throw new Error('package.json is not found');
+    if (response.status === 403) throw new Error('Hourly GitHub api rate limit exceeded');
+    if (response.status === 404) return 'N/A';
     return response.json();
   }).then(response => {
+    if (response === 'N/A') return response;
+
     const packageJson = JSON.parse(atob(response.content));
-    if (packageJson.private) {
-      return null;
-    }
+    if (packageJson.private) return null;
     return packageJson.name;
   }).catch(error => {
     console.warn(`[github-npm-stats] ${error}`);
