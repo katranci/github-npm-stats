@@ -43,7 +43,7 @@ describe('fetchPackageName', () => {
     expect(packageName).toBe('vue')
   })
 
-  it('returns null if api returns with 404', async () => {
+  it('returns N/A if api returns with 404', async () => {
     fetch.mockImplementation((url) => {
       return Promise.resolve({
         status: 404
@@ -51,8 +51,8 @@ describe('fetchPackageName', () => {
     })
 
     const packageName = await fetchPackageName('vuejs', 'vue')
-    expect(packageName).toBeNull()
-    expect(console.warn).toHaveBeenCalled()
+    expect(packageName).toBe('N/A')
+    expect(console.warn).not.toHaveBeenCalled()
   })
 
   it('returns null if api returns with 403', async () => {
