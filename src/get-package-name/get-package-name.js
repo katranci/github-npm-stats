@@ -7,7 +7,7 @@ const getPackageName = async (owner, repo) => {
   const cacheKey = getCacheKey(owner, repo)
   let pkg = await getCachedPackage(cacheKey)
   if (!isFresh(pkg)) pkg = await createPackage(cacheKey, owner, repo)
-  return pkg ? pkg.name : null
+  return pkg && pkg.name !== 'N/A' ? pkg.name : null
 }
 
 export default getPackageName

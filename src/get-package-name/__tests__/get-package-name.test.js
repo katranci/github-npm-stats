@@ -10,6 +10,13 @@ import getCachedPackageMock from '../get-cached-package'
 import isFreshMock from '../is-fresh'
 import createPackageMock from '../create-package'
 
+afterEach(() => {
+  getCacheKeyMock.mockReset()
+  getCachedPackageMock.mockReset()
+  isFreshMock.mockReset()
+  createPackageMock.mockReset()
+})
+
 describe('getPackageName', () => {
   it('returns name from cached package if cache is still fresh', async () => {
     const cachedPackage = { name: 'vue' }
@@ -30,6 +37,7 @@ describe('getPackageName', () => {
   it('creates package if cache is stale or it doesn`t exist', async () => {
     const pkg = { name: 'vuex' }
 
+    getCacheKeyMock.mockReturnValue('cache-key')
     isFreshMock.mockReturnValue(false)
     createPackageMock.mockReturnValue(Promise.resolve(pkg))
 
@@ -44,6 +52,16 @@ describe('getPackageName', () => {
     createPackageMock.mockReturnValue(Promise.resolve(null))
 
     const packageName = await getPackageName('vuejs', 'vue')
+
+    expect(packageName).toBeNull()
+  })
+
+  it ('returns null if repo doesn`t belong to a npm package', async () => {
+    const cachedPackage = { name: 'N/A' }
+    getCachedPackageMock.mockReturnValue(Promise.resolve(cachedPackage))
+    isFreshMock.mockReturnValue(true)
+
+    const packageName = await getPackageName('ipython', 'ipython')
 
     expect(packageName).toBeNull()
   })
