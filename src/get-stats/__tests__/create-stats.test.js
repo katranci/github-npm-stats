@@ -14,7 +14,7 @@ afterAll(() => {
   Date.now = nowFunc
 })
 
-beforeEach(() => {
+afterEach(() => {
   fetchStatsMock.mockReset()
   chrome.storage.local.set.mockReset()
 })
@@ -34,7 +34,7 @@ describe('createStats', () => {
   it('caches package in storage', async () => {
     fetchStatsMock.mockReturnValue(Promise.resolve({ lastDay: 10000 }))
 
-    chrome.storage.local.set.mockImplementationOnce((object, callback) => {
+    chrome.storage.local.set.mockImplementation((object, callback) => {
       expect(object['cache-key']).toEqual({
         lastDay: 10000
       })
