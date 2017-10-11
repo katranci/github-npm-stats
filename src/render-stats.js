@@ -44,7 +44,7 @@ const renderStats = (packageName, stats) => {
   li.className = 'npm-stats'
   li.innerHTML = `
     <div class="select-menu js-menu-container js-select-menu">
-      <a href="https://www.npmjs.com/package/${packageName}" target="_blank" class="btn btn-sm btn-with-count">
+      <a href="https://www.npmjs.com/package/${packageName}" target="_blank" class="btn btn-sm btn-with-count" title="View package on npmjs.com" aria-label="View package on npmjs.com">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="13px" viewBox="0 0 18 7">
           <path fill="#CB3837" d="M0,0h18v6H9v1H5V6H0V0z M1,5h2V2h1v3h1V1H1V5z M6,1v5h2V5h2V1H6z M8,2h1v2H8V2z M11,1v4h2V2h1v3h1V2h1v3h1V1H11z"/>
           <polygon fill="#FFFFFF" points="1,5 3,5 3,2 4,2 4,5 5,5 5,1 1,1 "/>
