@@ -15,6 +15,16 @@ const nonMatchingApiResponse = {
   }
 }
 
+const warnFunc = console.warn.bind(console)
+
+beforeAll(() => {
+  console.warn = jest.fn()
+})
+
+afterAll(() => {
+  console.warn = warnFunc
+})
+
 afterEach(() => {
   fetch.mockReset()
   getRepoInfoMock.mockReset()
@@ -39,5 +49,17 @@ describe('resolvePrivatePackage', () => {
     expect(fetch).toHaveBeenCalled()
     expect(getRepoInfoMock.mock.calls[0]).toEqual([matchingApiResponse.bugs.url])
     expect(packageName).toBe('package')
+  })
+
+  it('returns null if provided package does`t exist in npm registry', async () => {
+    fetch.mockImplementation((url) => {
+      return Promise.resolve({
+        status: 404
+      })
+    })
+
+    const packageName = await resolvePrivatePackage('owner', 'repo', 'package')
+    expect(packageName).toBeNull()
+    expect(console.warn).toHaveBeenCalledWith('[github-npm-stats] Couldn\'t find "package" in npm registry')
   })
 })
