@@ -15,7 +15,7 @@ const resolvePrivatePackage = async (owner, repo, packageName) => {
     return packageName
   }
 
-  // return null
+  return null
 }
 
 export default resolvePrivatePackage
