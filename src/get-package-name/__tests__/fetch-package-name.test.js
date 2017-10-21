@@ -1,5 +1,8 @@
 import fetchPackageName from '../fetch-package-name'
 
+jest.mock('../resolve-private-package')
+import resolvePrivatePackageMock from '../resolve-private-package'
+
 const apiResponse = (options = {}) => {
   const packageJson = {
     name: "vue",
@@ -67,20 +70,35 @@ describe('fetchPackageName', () => {
     expect(console.warn).toHaveBeenCalledWith('[github-npm-stats] Error: Hourly GitHub api rate limit exceeded')
   })
 
-  it('returns null if package is private', async () => {
-    fetch.mockImplementation((url) => {
-      return Promise.resolve({
-        json () {
-          return Promise.resolve(apiResponse({
-            packageJson: {
-              private: true
-            }
-          }))
-        }
+  describe('if package is private', () => {
+    beforeEach(() => {
+      fetch.mockImplementation((url) => {
+        return Promise.resolve({
+          json () {
+            return Promise.resolve(apiResponse({
+              packageJson: {
+                private: true
+              }
+            }))
+          }
+        })
       })
     })
 
-    const packageName = await fetchPackageName('vuejs', 'vue')
-    expect(packageName).toBeNull()
+    it('returns name if package is resolved', async () => {
+      resolvePrivatePackageMock.mockReturnValue(Promise.resolve('vue'))
+
+      const packageName = await fetchPackageName('vuejs', 'vue')
+
+      expect(resolvePrivatePackageMock).toHaveBeenCalled()
+      expect(packageName).toBe('vue')
+    })
+
+    it('returns null otherwise', async () => {
+      resolvePrivatePackageMock.mockReturnValue(Promise.resolve(null))
+
+      const packageName = await fetchPackageName('vuejs', 'vue')
+      expect(packageName).toBeNull()
+    })
   })
 })

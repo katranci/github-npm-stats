@@ -1,3 +1,5 @@
+import resolvePrivatePackage from './resolve-private-package'
+
 const fetchPackageName = async (owner, repo) => {
   const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/package.json`)
 
@@ -12,12 +14,13 @@ const fetchPackageName = async (owner, repo) => {
 
   const responseBody = await response.json()
   const packageJson = JSON.parse(atob(responseBody.content))
+  const packageName = packageJson.name
 
   if (packageJson.private) {
-    return null
+    return resolvePrivatePackage(owner, repo, packageName)
   }
 
-  return packageJson.name
+  return packageName
 }
 
 export default fetchPackageName
