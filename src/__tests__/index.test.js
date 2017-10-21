@@ -11,6 +11,7 @@ import getStatsMock from '../get-stats/get-stats'
 import renderStatsMock from '../render-stats'
 
 afterEach(() => {
+  location.href = 'about:blank'
   getRepoInfoMock.mockReset()
   getPackageNameMock.mockReset()
   getStatsMock.mockReset()
@@ -19,13 +20,14 @@ afterEach(() => {
 
 describe('run', () => {
   it('retrieves package name and stats and renders them', async () => {
+    location.href = 'https://github.com/vuejs/vue'
     getRepoInfoMock.mockReturnValue({ owner: 'vuejs', repo: 'vue' })
     getPackageNameMock.mockReturnValue(Promise.resolve('vue'))
     getStatsMock.mockReturnValue(Promise.resolve({ lastDay: 10000 }))
 
     await run()
 
-    expect(getRepoInfoMock).toHaveBeenCalled()
+    expect(getRepoInfoMock.mock.calls[0]).toEqual(['https://github.com/vuejs/vue'])
     expect(getPackageNameMock.mock.calls[0]).toEqual(['vuejs', 'vue'])
     expect(getStatsMock.mock.calls[0]).toEqual(['vue'])
     expect(renderStatsMock.mock.calls[0]).toEqual(['vue', { lastDay: 10000 }])
