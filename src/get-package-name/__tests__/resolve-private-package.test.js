@@ -12,6 +12,9 @@ const nonMatchingApiResponse = {
   }
 }
 
+const noBugsApiResponse = {}
+const noBugsUrlApiResponse = { bugs: {} }
+
 const warnFunc = console.warn.bind(console)
 
 beforeAll(() => {
@@ -58,11 +61,35 @@ describe('resolvePrivatePackage', () => {
 
   it('returns null if provided repo details doesn`t match npm registry details', async () => {
     fetch.mockImplementation((url) => {
-      expect(url).toBe('https://registry.npmjs.org/package/latest')
-
       return Promise.resolve({
         json () {
           return Promise.resolve(nonMatchingApiResponse)
+        }
+      })
+    })
+
+    const packageName = await resolvePrivatePackage('owner', 'repo', 'package')
+    expect(packageName).toBeNull()
+  })
+
+  it('returns null if npm registry doesn`t have a bugs section', async () => {
+    fetch.mockImplementation((url) => {
+      return Promise.resolve({
+        json () {
+          return Promise.resolve(noBugsApiResponse)
+        }
+      })
+    })
+
+    const packageName = await resolvePrivatePackage('owner', 'repo', 'package')
+    expect(packageName).toBeNull()
+  })
+
+  it('returns null if npm registry doesn`t have a bugs url', async () => {
+    fetch.mockImplementation((url) => {
+      return Promise.resolve({
+        json () {
+          return Promise.resolve(noBugsUrlApiResponse)
         }
       })
     })

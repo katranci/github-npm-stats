@@ -9,10 +9,12 @@ const resolvePrivatePackage = async (owner, repo, packageName) => {
   }
 
   const responseBody = await response.json()
-  const repoInfo = getRepoInfo(responseBody.bugs.url)
 
-  if (repoInfo.owner === owner && repoInfo.repo === repo) {
-    return packageName
+  if (responseBody.bugs && responseBody.bugs.url) {
+    const repoInfo = getRepoInfo(responseBody.bugs.url)
+    if (repoInfo.owner === owner && repoInfo.repo === repo) {
+      return packageName
+    }
   }
 
   return null
