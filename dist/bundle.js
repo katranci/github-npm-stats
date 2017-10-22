@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -68,18 +68,36 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+const getRepoInfo = url => {
+  const parsedUrl = new URL(url);
+  const [, owner, repo] = parsedUrl.pathname.split('/');
+
+  if (!owner || !repo) {
+    return null;
+  }
+
+  return { owner, repo };
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (getRepoInfo);
+
+/***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_repo_info__ = __webpack_require__(2);
+/* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_repo_info__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_package_name_get_package_name__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__get_stats_get_stats__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__render_stats__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__get_stats_get_stats__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__render_stats__ = __webpack_require__(16);
 
 
 
 
 
 const run = async () => {
-  const { owner, repo } = Object(__WEBPACK_IMPORTED_MODULE_0__get_repo_info__["a" /* default */])() || {};
+  const { owner, repo } = Object(__WEBPACK_IMPORTED_MODULE_0__get_repo_info__["a" /* default */])(location.href) || {};
   if (!owner) return;
 
   const packageName = await Object(__WEBPACK_IMPORTED_MODULE_1__get_package_name_get_package_name__["a" /* default */])(owner, repo);
@@ -96,10 +114,10 @@ if (!process || !process.env || process.env.NODE_ENV !== 'test') {
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (run);
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(2)))
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -289,21 +307,6 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const getRepoInfo = () => {
-  const [, owner, repo] = location.pathname.split('/');
-  if (!owner || !repo) {
-    return null;
-  }
-  return { owner, repo };
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (getRepoInfo);
-
-/***/ }),
 /* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -407,21 +410,30 @@ const createPackage = async (cacheKey, owner, repo) => {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const fetchPackageName = (owner, repo) => {
-  return fetch(`https://api.github.com/repos/${owner}/${repo}/contents/package.json`).then(response => {
-    if (response.status === 403) throw new Error('Hourly GitHub api rate limit exceeded');
-    if (response.status === 404) return 'N/A';
-    return response.json();
-  }).then(response => {
-    if (response === 'N/A') return response;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__resolve_private_package__ = __webpack_require__(9);
 
-    const packageJson = JSON.parse(atob(response.content));
-    if (packageJson.private) return null;
-    return packageJson.name;
-  }).catch(error => {
-    console.warn(`[github-npm-stats] ${error}`);
+
+const fetchPackageName = async (owner, repo) => {
+  const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/package.json`);
+
+  if (response.status === 403) {
+    console.warn('[github-npm-stats] Error: Hourly GitHub api rate limit exceeded');
     return null;
-  });
+  }
+
+  if (response.status === 404) {
+    return 'N/A';
+  }
+
+  const responseBody = await response.json();
+  const packageJson = JSON.parse(atob(responseBody.content));
+  let packageName = packageJson.name;
+
+  if (packageJson.private) {
+    packageName = await Object(__WEBPACK_IMPORTED_MODULE_0__resolve_private_package__["a" /* default */])(owner, repo, packageName);
+  }
+
+  return packageName;
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (fetchPackageName);
@@ -431,10 +443,40 @@ const fetchPackageName = (owner, repo) => {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_cache_key__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_cached_stats__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__is_fresh__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__create_stats__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_repo_info__ = __webpack_require__(0);
+
+
+const resolvePrivatePackage = async (owner, repo, packageName) => {
+  const response = await fetch(`https://registry.npmjs.org/${packageName}/latest`);
+
+  if (response.status === 404) {
+    console.warn(`[github-npm-stats] Couldn't find "${packageName}" in npm registry`);
+    return null;
+  }
+
+  const responseBody = await response.json();
+
+  if (responseBody.bugs && responseBody.bugs.url) {
+    const repoInfo = Object(__WEBPACK_IMPORTED_MODULE_0__get_repo_info__["a" /* default */])(responseBody.bugs.url);
+    if (repoInfo.owner === owner && repoInfo.repo === repo) {
+      return packageName;
+    }
+  }
+
+  return null;
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (resolvePrivatePackage);
+
+/***/ }),
+/* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_cache_key__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_cached_stats__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__is_fresh__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__create_stats__ = __webpack_require__(14);
 
 
 
@@ -450,7 +492,7 @@ const getStats = async packageName => {
 /* harmony default export */ __webpack_exports__["a"] = (getStats);
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -461,7 +503,7 @@ const getCacheKey = packageName => {
 /* harmony default export */ __webpack_exports__["a"] = (getCacheKey);
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -481,7 +523,7 @@ const getCachedStats = cacheKey => {
 /* harmony default export */ __webpack_exports__["a"] = (getCachedStats);
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -501,11 +543,11 @@ const isFresh = stats => {
 /* harmony default export */ __webpack_exports__["a"] = (isFresh);
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__fetch_stats__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__fetch_stats__ = __webpack_require__(15);
 
 
 const createStats = async (cacheKey, packageName) => {
@@ -526,32 +568,37 @@ const createStats = async (cacheKey, packageName) => {
 /* harmony default export */ __webpack_exports__["a"] = (createStats);
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 const fetchStats = async packageName => {
-  return fetch(`https://api.npmjs.org/downloads/range/last-month/${packageName}`).then(response => {
-    if (response.status === 404) throw new Error('npm stats is not found');
-    return response.json();
-  }).then(response => {
-    let { downloads } = response;
+  const response = await fetch(`https://api.npmjs.org/downloads/range/last-month/${packageName}`);
 
-    const lastDay = downloads[downloads.length - 1].downloads;
-    const lastWeek = downloads.slice(downloads.length - 7, downloads.length).reduce((sum, day) => sum + day.downloads, 0);
-    const lastMonth = downloads.reduce((sum, day) => sum + day.downloads, 0);
-
-    return { apiResponse: response, lastDay, lastWeek, lastMonth };
-  }).catch(error => {
-    console.warn(`[github-npm-stats] ${error}`);
+  if (response.status === 404) {
+    console.warn('[github-npm-stats] npm stats is not found');
     return null;
-  });
+  }
+
+  const responseBody = await response.json();
+  const { downloads } = responseBody;
+
+  const lastDay = downloads[downloads.length - 1].downloads;
+  const lastWeek = downloads.slice(downloads.length - 7, downloads.length).reduce((sum, day) => sum + day.downloads, 0);
+  const lastMonth = downloads.reduce((sum, day) => sum + day.downloads, 0);
+
+  return {
+    apiResponse: responseBody,
+    lastDay,
+    lastWeek,
+    lastMonth
+  };
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (fetchStats);
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -601,7 +648,7 @@ const renderStats = (packageName, stats) => {
   li.className = 'npm-stats';
   li.innerHTML = `
     <div class="select-menu js-menu-container js-select-menu">
-      <a href="https://www.npmjs.com/package/${packageName}" target="_blank" class="btn btn-sm btn-with-count">
+      <a href="https://www.npmjs.com/package/${packageName}" target="_blank" class="btn btn-sm btn-with-count" title="View package on npmjs.com" aria-label="View package on npmjs.com">
         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="13px" viewBox="0 0 18 7">
           <path fill="#CB3837" d="M0,0h18v6H9v1H5V6H0V0z M1,5h2V2h1v3h1V1H1V5z M6,1v5h2V5h2V1H6z M8,2h1v2H8V2z M11,1v4h2V2h1v3h1V2h1v3h1V1H11z"/>
           <polygon fill="#FFFFFF" points="1,5 3,5 3,2 4,2 4,5 5,5 5,1 1,1 "/>
