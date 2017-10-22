@@ -35,9 +35,7 @@ describe('resolvePrivatePackage', () => {
       expect(url).toBe('https://registry.npmjs.org/package/latest')
 
       return Promise.resolve({
-        json () {
-          return Promise.resolve(matchingApiResponse)
-        }
+        json: () => Promise.resolve(matchingApiResponse)
       })
     })
 
@@ -48,11 +46,9 @@ describe('resolvePrivatePackage', () => {
   })
 
   it('returns null if provided package does`t exist in npm registry', async () => {
-    fetch.mockImplementation((url) => {
-      return Promise.resolve({
-        status: 404
-      })
-    })
+    fetch.mockImplementation((url) => Promise.resolve({
+      status: 404
+    }))
 
     const packageName = await resolvePrivatePackage('owner', 'repo', 'package')
     expect(packageName).toBeNull()
@@ -62,9 +58,7 @@ describe('resolvePrivatePackage', () => {
   it('returns null if provided repo details doesn`t match npm registry details', async () => {
     fetch.mockImplementation((url) => {
       return Promise.resolve({
-        json () {
-          return Promise.resolve(nonMatchingApiResponse)
-        }
+        json: () => Promise.resolve(nonMatchingApiResponse)
       })
     })
 
@@ -75,9 +69,7 @@ describe('resolvePrivatePackage', () => {
   it('returns null if npm registry doesn`t have a bugs section', async () => {
     fetch.mockImplementation((url) => {
       return Promise.resolve({
-        json () {
-          return Promise.resolve(noBugsApiResponse)
-        }
+        json: () => Promise.resolve(noBugsApiResponse)
       })
     })
 
@@ -88,9 +80,7 @@ describe('resolvePrivatePackage', () => {
   it('returns null if npm registry doesn`t have a bugs url', async () => {
     fetch.mockImplementation((url) => {
       return Promise.resolve({
-        json () {
-          return Promise.resolve(noBugsUrlApiResponse)
-        }
+        json: () => Promise.resolve(noBugsUrlApiResponse)
       })
     })
 

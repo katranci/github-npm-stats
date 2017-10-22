@@ -36,9 +36,7 @@ describe('fetchPackageName', () => {
       expect(url).toBe('https://api.github.com/repos/vuejs/vue/contents/package.json')
 
       return Promise.resolve({
-        json () {
-          return Promise.resolve(apiResponse())
-        }
+        json: () => Promise.resolve(apiResponse())
       })
     })
 
@@ -74,13 +72,11 @@ describe('fetchPackageName', () => {
     beforeEach(() => {
       fetch.mockImplementation((url) => {
         return Promise.resolve({
-          json () {
-            return Promise.resolve(apiResponse({
-              packageJson: {
-                private: true
-              }
-            }))
-          }
+          json: () => Promise.resolve(apiResponse({
+            packageJson: {
+              private: true
+            }
+          }))
         })
       })
     })
