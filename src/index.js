@@ -4,7 +4,7 @@ import getStats from './get-stats/get-stats'
 import renderStats from './render-stats'
 
 const run = async () => {
-  const { owner, repo } = getRepoInfo() || {}
+  const { owner, repo } = getRepoInfo(location.href) || {}
   if (!owner) return
 
   const packageName = await getPackageName(owner, repo)

@@ -10,7 +10,8 @@
     "128": "icons/icon128.png"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "https://*.npmjs.org/"
   ],
   "content_scripts": [
     {

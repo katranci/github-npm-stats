@@ -40,9 +40,7 @@ describe('fetchStats', () => {
       expect(url).toBe('https://api.npmjs.org/downloads/range/last-month/vue')
 
       return Promise.resolve({
-        json () {
-          return Promise.resolve(apiResponse)
-        }
+        json: () => Promise.resolve(apiResponse)
       })
     })
 

@@ -1,3 +1,3 @@
-Object.defineProperty(window.location, 'pathname', {
+Object.defineProperty(window.location, 'href', {
   writable: true
 })
