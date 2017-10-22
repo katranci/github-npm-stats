@@ -16,6 +16,10 @@ const fetchPackageName = async (owner, repo) => {
   const packageJson = JSON.parse(atob(responseBody.content))
   let packageName = packageJson.name
 
+  if (!packageName) {
+    return 'N/A'
+  }
+
   if (packageJson.private) {
     packageName = await resolvePrivatePackage(owner, repo, packageName)
   }

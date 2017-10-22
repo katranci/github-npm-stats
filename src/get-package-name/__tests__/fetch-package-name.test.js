@@ -68,6 +68,21 @@ describe('fetchPackageName', () => {
     expect(console.warn).toHaveBeenCalledWith('[github-npm-stats] Error: Hourly GitHub api rate limit exceeded')
   })
 
+  it('returns N/A if name is absent from package.json', async () => {
+    fetch.mockImplementation((url) => {
+      return Promise.resolve({
+        json: () => Promise.resolve(apiResponse({
+          packageJson: {
+            name: undefined
+          }
+        }))
+      })
+    })
+
+    const packageName = await fetchPackageName('vuejs', 'vue')
+    expect(packageName).toBe('N/A')
+  })
+
   describe('if package is private', () => {
     beforeEach(() => {
       fetch.mockImplementation((url) => {
