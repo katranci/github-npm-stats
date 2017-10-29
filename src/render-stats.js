@@ -31,6 +31,10 @@ const renderChart = (chartCanvas, stats) => {
 const renderStats = (packageName, stats) => {
   const pageheadActions = document.querySelector('ul.pagehead-actions')
 
+  if (pageheadActions.querySelector('.npm-stats')) {
+    return
+  }
+
   const observer = new MutationObserver(mutations => {
     const chartCanvas = document.getElementById('npm-stats-chart')
     if (!chartCanvas) return

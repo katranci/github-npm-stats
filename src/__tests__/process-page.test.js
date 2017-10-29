@@ -1,4 +1,4 @@
-import run from '../index'
+import processPage from '../process-page'
 
 jest.mock('../get-repo-info')
 jest.mock('../get-package-name/get-package-name')
@@ -18,14 +18,14 @@ afterEach(() => {
   renderStatsMock.mockReset()
 })
 
-describe('run', () => {
+describe('processPage', () => {
   it('retrieves package name and stats and renders them', async () => {
     location.href = 'https://github.com/vuejs/vue'
     getRepoInfoMock.mockReturnValue({ owner: 'vuejs', repo: 'vue' })
     getPackageNameMock.mockReturnValue(Promise.resolve('vue'))
     getStatsMock.mockReturnValue(Promise.resolve({ lastDay: 10000 }))
 
-    await run()
+    await processPage()
 
     expect(getRepoInfoMock.mock.calls[0]).toEqual(['https://github.com/vuejs/vue'])
     expect(getPackageNameMock.mock.calls[0]).toEqual(['vuejs', 'vue'])
@@ -36,7 +36,7 @@ describe('run', () => {
   it('doesn`t render anything if repo info is missing', async () => {
     getRepoInfoMock.mockReturnValue(null)
 
-    await run()
+    await processPage()
 
     expect(getPackageNameMock).toHaveBeenCalledTimes(0)
     expect(getStatsMock).toHaveBeenCalledTimes(0)
@@ -47,7 +47,7 @@ describe('run', () => {
     getRepoInfoMock.mockReturnValue({ owner: 'vuejs', repo: 'vue' })
     getPackageNameMock.mockReturnValue(Promise.resolve(null))
 
-    await run()
+    await processPage()
 
     expect(getStatsMock).toHaveBeenCalledTimes(0)
     expect(renderStatsMock).toHaveBeenCalledTimes(0)
@@ -58,7 +58,7 @@ describe('run', () => {
     getPackageNameMock.mockReturnValue(Promise.resolve('vue'))
     getStatsMock.mockReturnValue(Promise.resolve(null))
 
-    await run()
+    await processPage()
 
     expect(renderStatsMock).toHaveBeenCalledTimes(0)
   })
