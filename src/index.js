@@ -1,19 +1,29 @@
-import getRepoInfo from './get-repo-info'
-import getPackageName from './get-package-name/get-package-name'
-import getStats from './get-stats/get-stats'
-import renderStats from './render-stats'
+import processPage from './process-page'
 
-const run = async () => {
-  const { owner, repo } = getRepoInfo(location.href) || {}
-  if (!owner) return
+const run = () => {
+  processPage()
+  handleNavigation()
+}
 
-  const packageName = await getPackageName(owner, repo)
-  if (!packageName) return
+const handleNavigation = () => {
+  const pageContainer = document.getElementById('js-repo-pjax-container')
 
-  const stats = await getStats(packageName)
-  if (!stats) return
+  if (!pageContainer) {
+    return
+  }
 
-  renderStats(packageName, stats)
+  const observer = new MutationObserver(mutations => {
+    for (const mutation of mutations) {
+      for (const addedNode of mutation.addedNodes) {
+        if (addedNode.classList.contains('pagehead')) {
+          processPage()
+          break
+        }
+      }
+    }
+  })
+
+  observer.observe(pageContainer, { childList: true })
 }
 
 if (!process || !process.env || process.env.NODE_ENV !== 'test') {
