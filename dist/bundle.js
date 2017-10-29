@@ -87,26 +87,33 @@ const getRepoInfo = url => {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_repo_info__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_package_name_get_package_name__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__get_stats_get_stats__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__render_stats__ = __webpack_require__(16);
+/* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__process_page__ = __webpack_require__(3);
 
 
+const run = () => {
+  Object(__WEBPACK_IMPORTED_MODULE_0__process_page__["a" /* default */])();
+  handleNavigation();
+};
 
+const handleNavigation = () => {
+  const pageContainer = document.getElementById('js-repo-pjax-container');
 
+  if (!pageContainer) {
+    return;
+  }
 
-const run = async () => {
-  const { owner, repo } = Object(__WEBPACK_IMPORTED_MODULE_0__get_repo_info__["a" /* default */])(location.href) || {};
-  if (!owner) return;
+  const observer = new MutationObserver(mutations => {
+    for (const mutation of mutations) {
+      for (const addedNode of mutation.addedNodes) {
+        if (addedNode.classList.contains('pagehead')) {
+          Object(__WEBPACK_IMPORTED_MODULE_0__process_page__["a" /* default */])();
+          break;
+        }
+      }
+    }
+  });
 
-  const packageName = await Object(__WEBPACK_IMPORTED_MODULE_1__get_package_name_get_package_name__["a" /* default */])(owner, repo);
-  if (!packageName) return;
-
-  const stats = await Object(__WEBPACK_IMPORTED_MODULE_2__get_stats_get_stats__["a" /* default */])(packageName);
-  if (!stats) return;
-
-  Object(__WEBPACK_IMPORTED_MODULE_3__render_stats__["a" /* default */])(packageName, stats);
+  observer.observe(pageContainer, { childList: true });
 };
 
 if (!process || !process.env || process.env.NODE_ENV !== 'test') {
@@ -311,10 +318,39 @@ process.umask = function() { return 0; };
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_cache_key__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_cached_package__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__is_fresh__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__create_package__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_repo_info__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_package_name_get_package_name__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__get_stats_get_stats__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__render_stats__ = __webpack_require__(17);
+
+
+
+
+
+const processPage = async () => {
+  const { owner, repo } = Object(__WEBPACK_IMPORTED_MODULE_0__get_repo_info__["a" /* default */])(location.href) || {};
+  if (!owner) return;
+
+  const packageName = await Object(__WEBPACK_IMPORTED_MODULE_1__get_package_name_get_package_name__["a" /* default */])(owner, repo);
+  if (!packageName) return;
+
+  const stats = await Object(__WEBPACK_IMPORTED_MODULE_2__get_stats_get_stats__["a" /* default */])(packageName);
+  if (!stats) return;
+
+  Object(__WEBPACK_IMPORTED_MODULE_3__render_stats__["a" /* default */])(packageName, stats);
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (processPage);
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_cache_key__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_cached_package__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__is_fresh__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__create_package__ = __webpack_require__(8);
 
 
 
@@ -330,7 +366,7 @@ const getPackageName = async (owner, repo) => {
 /* harmony default export */ __webpack_exports__["a"] = (getPackageName);
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -341,7 +377,7 @@ const getCacheKey = (owner, repo) => {
 /* harmony default export */ __webpack_exports__["a"] = (getCacheKey);
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -361,7 +397,7 @@ const getCachedPackage = cacheKey => {
 /* harmony default export */ __webpack_exports__["a"] = (getCachedPackage);
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -378,11 +414,11 @@ const isFresh = pkg => {
 /* harmony default export */ __webpack_exports__["a"] = (isFresh);
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__fetch_package_name__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__fetch_package_name__ = __webpack_require__(9);
 
 
 const createPackage = async (cacheKey, owner, repo) => {
@@ -406,11 +442,11 @@ const createPackage = async (cacheKey, owner, repo) => {
 /* harmony default export */ __webpack_exports__["a"] = (createPackage);
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__resolve_private_package__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__resolve_private_package__ = __webpack_require__(10);
 
 
 const fetchPackageName = async (owner, repo) => {
@@ -429,6 +465,10 @@ const fetchPackageName = async (owner, repo) => {
   const packageJson = JSON.parse(atob(responseBody.content));
   let packageName = packageJson.name;
 
+  if (!packageName) {
+    return 'N/A';
+  }
+
   if (packageJson.private) {
     packageName = await Object(__WEBPACK_IMPORTED_MODULE_0__resolve_private_package__["a" /* default */])(owner, repo, packageName);
   }
@@ -439,7 +479,7 @@ const fetchPackageName = async (owner, repo) => {
 /* harmony default export */ __webpack_exports__["a"] = (fetchPackageName);
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -469,14 +509,14 @@ const resolvePrivatePackage = async (owner, repo, packageName) => {
 /* harmony default export */ __webpack_exports__["a"] = (resolvePrivatePackage);
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_cache_key__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_cached_stats__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__is_fresh__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__create_stats__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__get_cache_key__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__get_cached_stats__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__is_fresh__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__create_stats__ = __webpack_require__(15);
 
 
 
@@ -492,7 +532,7 @@ const getStats = async packageName => {
 /* harmony default export */ __webpack_exports__["a"] = (getStats);
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -503,7 +543,7 @@ const getCacheKey = packageName => {
 /* harmony default export */ __webpack_exports__["a"] = (getCacheKey);
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -523,7 +563,7 @@ const getCachedStats = cacheKey => {
 /* harmony default export */ __webpack_exports__["a"] = (getCachedStats);
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -543,11 +583,11 @@ const isFresh = stats => {
 /* harmony default export */ __webpack_exports__["a"] = (isFresh);
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__fetch_stats__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__fetch_stats__ = __webpack_require__(16);
 
 
 const createStats = async (cacheKey, packageName) => {
@@ -568,7 +608,7 @@ const createStats = async (cacheKey, packageName) => {
 /* harmony default export */ __webpack_exports__["a"] = (createStats);
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -598,7 +638,7 @@ const fetchStats = async packageName => {
 /* harmony default export */ __webpack_exports__["a"] = (fetchStats);
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -634,6 +674,10 @@ const renderChart = (chartCanvas, stats) => {
 
 const renderStats = (packageName, stats) => {
   const pageheadActions = document.querySelector('ul.pagehead-actions');
+
+  if (pageheadActions.querySelector('.npm-stats')) {
+    return;
+  }
 
   const observer = new MutationObserver(mutations => {
     const chartCanvas = document.getElementById('npm-stats-chart');
