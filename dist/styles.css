@@ -3,12 +3,14 @@ ul.pagehead-actions .npm-stats .btn svg {
   top: 3px;
 }
 
-ul.pagehead-actions .npm-stats--inside .select-menu-modal-holder {
-  right: 0;
-}
-
 ul.pagehead-actions .npm-stats .select-menu-modal {
   width: 400px;
+  left: -55px;
+}
+
+ul.pagehead-actions .npm-stats--inside .select-menu-modal {
+  left: auto;
+  right: 0;
 }
 
 ul.pagehead-actions .npm-stats .select-menu-modal dl {
