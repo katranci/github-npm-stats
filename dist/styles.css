@@ -11,6 +11,7 @@ ul.pagehead-actions .npm-stats .select-menu-modal {
 ul.pagehead-actions .npm-stats--inside .select-menu-modal {
   left: auto;
   right: 0;
+  z-index: 1;
 }
 
 ul.pagehead-actions .npm-stats .select-menu-modal dl {
