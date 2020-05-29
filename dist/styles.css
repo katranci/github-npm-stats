@@ -6,6 +6,7 @@ ul.pagehead-actions .npm-stats .btn svg {
 ul.pagehead-actions .npm-stats .select-menu-modal {
   width: 400px;
   left: -55px;
+  z-index: 1;
 }
 
 ul.pagehead-actions .npm-stats--inside .select-menu-modal {
