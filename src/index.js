@@ -7,11 +7,11 @@ const run = () => {
       opts.period = 'lastDay'
     }
     processPage(opts)
-    handleNavigation()
+    handleNavigation(opts)
   })
 }
 
-const handleNavigation = () => {
+const handleNavigation = (opts) => {
   const pageContainer = document.getElementById('js-repo-pjax-container')
 
   if (!pageContainer) {
@@ -21,8 +21,8 @@ const handleNavigation = () => {
   const observer = new MutationObserver(mutations => {
     for (const mutation of mutations) {
       for (const addedNode of mutation.addedNodes) {
-        if (addedNode.classList.contains('pagehead')) {
-          processPage()
+        if (addedNode.classList && addedNode.classList.contains('pagehead')) {
+          processPage(opts)
           break
         }
       }
