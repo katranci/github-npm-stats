@@ -18,11 +18,13 @@
       "matches": ["https://github.com/*"],
       "js": [
         "chart.min.js",
-        "bundle.js",
-        "options.js"
+        "bundle.js"
       ],
       "css": ["styles.css"]
     }
   ],
-  "options": "options.html"
+  "options_ui": {
+  "page": "options.html",
+  "open_in_tab": false
+  }
 }
