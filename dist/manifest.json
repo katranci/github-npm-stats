@@ -18,9 +18,11 @@
       "matches": ["https://github.com/*"],
       "js": [
         "chart.min.js",
-        "bundle.js"
+        "bundle.js",
+        "options.js"
       ],
       "css": ["styles.css"]
     }
-  ]
+  ],
+  "options": "options.html"
 }
