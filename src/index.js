@@ -1,8 +1,14 @@
 import processPage from './process-page'
 
 const run = () => {
-  processPage()
-  handleNavigation()
+  chrome.storage.sync.get('period', ({ period }) => {
+    const opts = { period }
+    if (!period) {
+      opts.period = 'lastDay'
+    }
+    processPage(opts)
+    handleNavigation()
+  })
 }
 
 const handleNavigation = () => {
