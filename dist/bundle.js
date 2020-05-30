@@ -91,11 +91,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 const run = () => {
-  Object(__WEBPACK_IMPORTED_MODULE_0__process_page__["a" /* default */])();
-  handleNavigation();
+  chrome.storage.sync.get('period', ({ period }) => {
+    const opts = { period };
+    if (!period) {
+      opts.period = 'lastDay';
+    }
+    Object(__WEBPACK_IMPORTED_MODULE_0__process_page__["a" /* default */])(opts);
+    handleNavigation(opts);
+  });
 };
 
-const handleNavigation = () => {
+const handleNavigation = opts => {
   const pageContainer = document.getElementById('js-repo-pjax-container');
 
   if (!pageContainer) {
@@ -105,8 +111,8 @@ const handleNavigation = () => {
   const observer = new MutationObserver(mutations => {
     for (const mutation of mutations) {
       for (const addedNode of mutation.addedNodes) {
-        if (addedNode.classList.contains('pagehead')) {
-          Object(__WEBPACK_IMPORTED_MODULE_0__process_page__["a" /* default */])();
+        if (addedNode.classList && addedNode.classList.contains('pagehead')) {
+          Object(__WEBPACK_IMPORTED_MODULE_0__process_page__["a" /* default */])(opts);
           break;
         }
       }
@@ -327,7 +333,7 @@ process.umask = function() { return 0; };
 
 
 
-const processPage = async () => {
+const processPage = async opts => {
   const { owner, repo } = Object(__WEBPACK_IMPORTED_MODULE_0__get_repo_info__["a" /* default */])(location.href) || {};
   if (!owner) return;
 
@@ -336,8 +342,7 @@ const processPage = async () => {
 
   const stats = await Object(__WEBPACK_IMPORTED_MODULE_2__get_stats_get_stats__["a" /* default */])(packageName);
   if (!stats) return;
-
-  Object(__WEBPACK_IMPORTED_MODULE_3__render_stats__["a" /* default */])(packageName, stats);
+  Object(__WEBPACK_IMPORTED_MODULE_3__render_stats__["a" /* default */])(packageName, stats, opts);
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (processPage);
@@ -672,7 +677,7 @@ const renderChart = (chartCanvas, stats) => {
   });
 };
 
-const renderStats = (packageName, stats) => {
+const renderStats = (packageName, stats, opts) => {
   const pageheadActions = document.querySelector('ul.pagehead-actions');
 
   if (pageheadActions.querySelector('.npm-stats')) {
@@ -701,7 +706,7 @@ const renderStats = (packageName, stats) => {
     </a>
     <details class="details-reset details-overlay select-menu float-left">
       <summary class="social-count select-menu-button" aria-haspopup="menu" role="button" aria-label="Toggle npm stats menu">
-        ${stats.lastDay.toLocaleString()}
+        ${stats[opts.period].toLocaleString()}
       </summary>
       <details-menu class="select-menu-modal position-absolute mt-5">
         <div class="select-menu-header">
