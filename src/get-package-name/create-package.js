@@ -13,6 +13,7 @@ const createPackage = async (cacheKey, owner, repo) => {
     if (chrome.runtime.lastError) {
       console.warn(chrome.runtime.lastError)
     }
+    // if there is no error, perhaps some local storage flag "logging" flag could be set
   })
 
   return pkg
