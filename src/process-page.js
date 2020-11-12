@@ -3,7 +3,7 @@ import getPackageName from './get-package-name/get-package-name'
 import getStats from './get-stats/get-stats'
 import renderStats from './render-stats'
 
-const processPage = async () => {
+const processPage = async opts => {
   const { owner, repo } = getRepoInfo(location.href) || {}
   if (!owner) return
 
@@ -12,8 +12,7 @@ const processPage = async () => {
 
   const stats = await getStats(packageName)
   if (!stats) return
-
-  renderStats(packageName, stats)
+  renderStats(packageName, stats, opts)
 }
 
 export default processPage

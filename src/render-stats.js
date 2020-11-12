@@ -28,7 +28,7 @@ const renderChart = (chartCanvas, stats) => {
   })
 }
 
-const renderStats = (packageName, stats) => {
+const renderStats = (packageName, stats, opts) => {
   const pageheadActions = document.querySelector('ul.pagehead-actions')
 
   if (pageheadActions.querySelector('.npm-stats')) {
@@ -57,7 +57,7 @@ const renderStats = (packageName, stats) => {
     </a>
     <details class="details-reset details-overlay select-menu float-left">
       <summary class="social-count select-menu-button" aria-haspopup="menu" role="button" aria-label="Toggle npm stats menu">
-        ${stats.lastDay.toLocaleString()}
+        ${stats[opts.period].toLocaleString()}
       </summary>
       <details-menu class="select-menu-modal position-absolute mt-5">
         <div class="select-menu-header">
