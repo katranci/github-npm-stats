@@ -15,8 +15,9 @@ const fetchPackageName = async (owner, repo) => {
   const responseBody = await response.json()
   const packageJson = JSON.parse(atob(responseBody.content))
   let packageName = packageJson.name
+  const isVscodeExtension = Boolean(packageJson.engines?.vscode && packageJson.publisher)
 
-  if (!packageName) {
+  if (!packageName || isVscodeExtension) {
     return 'N/A'
   }
 
