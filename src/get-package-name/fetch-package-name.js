@@ -15,6 +15,12 @@ const fetchPackageName = async (owner, repo) => {
   const responseBody = await response.json()
   const packageJson = JSON.parse(atob(responseBody.content))
   let packageName = packageJson.name
+  const isVscodeExtension = Boolean(packageJson.engines?.vscode && packageJson.publisher)
+
+  if (isVscodeExtension) {
+    console.warn('[github-npm-stats] Error: Manifest is for a Visual Studio Code extension')
+    return null
+  }
 
   if (!packageName) {
     return 'N/A'
