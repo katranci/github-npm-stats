@@ -1,4 +1,4 @@
-import processPage from './process-page'
+import processPage from "./process-page"
 
 const run = () => {
   processPage()
@@ -6,27 +6,25 @@ const run = () => {
 }
 
 const handleNavigation = () => {
-  const pageContainer = document.getElementById('js-repo-pjax-container')
+  const pageContainer = document.getElementById("js-repo-pjax-container")
 
   if (!pageContainer) {
     return
   }
 
-  const observer = new MutationObserver(mutations => {
-    for (const mutation of mutations) {
-      for (const addedNode of mutation.addedNodes) {
-        if (addedNode.classList.contains('pagehead')) {
-          processPage()
-          break
-        }
-      }
+  const observer = new MutationObserver(() => {
+    if (
+      pageContainer.querySelector(".pagehead-actions") &&
+      !pageContainer.querySelector(".npm-stats")
+    ) {
+      processPage()
     }
   })
 
   observer.observe(pageContainer, { childList: true })
 }
 
-if (!process || !process.env || process.env.NODE_ENV !== 'test') {
+if (!process || !process.env || process.env.NODE_ENV !== "test") {
   run()
 }
 

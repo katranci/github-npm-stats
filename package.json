@@ -1,15 +1,38 @@
 {
-  "private": true,
-  "version": "1.3.0",
-  "devDependencies": {
-    "babel-loader": "7.1.2",
-    "babel-plugin-transform-es2015-modules-commonjs": "6.26.0",
-    "babel-plugin-transform-object-rest-spread": "6.26.0",
-    "jest": "21.2.1",
-    "webpack": "3.6.0"
-  },
+  "name": "github-npm-stats",
+  "displayName": "NPM Stats for GitHub",
+  "version": "2.0.0",
+  "description": "Displays npm package download statistics directly on GitHub repository pages.",
+  "author": "Ahmet Katranci",
   "scripts": {
-    "build": "webpack",
-    "test": "jest"
+    "dev": "plasmo dev",
+    "build": "plasmo build",
+    "package": "plasmo package",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "chart.js": "2.7.0",
+    "plasmo": "0.90.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "4.1.1",
+    "@types/chrome": "0.0.258",
+    "@types/node": "20.11.5",
+    "@types/react": "18.2.48",
+    "@types/react-dom": "18.2.18",
+    "jsdom": "^26.0.0",
+    "prettier": "3.2.4",
+    "typescript": "5.3.3",
+    "vitest": "^3.0.7"
+  },
+  "manifest": {
+    "permissions": [
+      "storage"
+    ],
+    "host_permissions": [
+      "https://github.com/*"
+    ]
   }
 }
