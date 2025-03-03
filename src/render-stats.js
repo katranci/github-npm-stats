@@ -1,42 +1,42 @@
 const renderChart = (chartCanvas, stats) => {
-  const ctx = chartCanvas.getContext('2d')
+  const ctx = chartCanvas.getContext("2d")
   const chart = new Chart(ctx, {
-    type: 'line',
+    type: "line",
     data: {
-      labels: stats.apiResponse.downloads.map(d => d.day),
-      datasets: [{
-        label: "Downloads",
-        data: stats.apiResponse.downloads.map(d => d.downloads),
-        borderWidth: 1,
-        borderColor: '#28a745'
-      }]
+      labels: stats.apiResponse.downloads.map((d) => d.day),
+      datasets: [
+        {
+          label: "Downloads",
+          data: stats.apiResponse.downloads.map((d) => d.downloads),
+          borderWidth: 1,
+          borderColor: "#28a745"
+        }
+      ]
     },
     options: {
       legend: {
         display: false
       },
       scales: {
-        yAxes: [{
-          ticks: {
-            callback (value, index, values) {
-              return value.toLocaleString()
+        yAxes: [
+          {
+            ticks: {
+              callback(value, index, values) {
+                return value.toLocaleString()
+              }
             }
           }
-        }]
+        ]
       }
     }
   })
 }
 
 const renderStats = (packageName, stats) => {
-  const pageheadActions = document.querySelector('ul.pagehead-actions')
+  const pageheadActions = document.querySelector("ul.pagehead-actions")
 
-  if (pageheadActions.querySelector('.npm-stats')) {
-    return
-  }
-
-  const observer = new MutationObserver(mutations => {
-    const chartCanvas = document.getElementById('npm-stats-chart')
+  const observer = new MutationObserver(() => {
+    const chartCanvas = document.getElementById("npm-stats-chart")
     if (!chartCanvas) return
     observer.disconnect()
     renderChart(chartCanvas, stats)
@@ -44,8 +44,8 @@ const renderStats = (packageName, stats) => {
 
   observer.observe(pageheadActions, { childList: true })
 
-  const li = document.createElement('li')
-  li.className = 'npm-stats'
+  const li = document.createElement("li")
+  li.className = "npm-stats"
   li.innerHTML = `
     <a href="https://www.npmjs.com/package/${packageName}" target="_blank" class="btn btn-sm btn-with-count" title="View package on npmjs.com" aria-label="View package on npmjs.com">
       <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="13px" viewBox="0 0 18 7">
@@ -79,7 +79,7 @@ const renderStats = (packageName, stats) => {
 
   const availSpace = window.innerWidth - li.getBoundingClientRect().right > 300
   if (!availSpace) {
-    li.classList.add('npm-stats--inside')
+    li.classList.add("npm-stats--inside")
   }
 }
 
