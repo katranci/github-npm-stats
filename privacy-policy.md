@@ -10,7 +10,7 @@ NPM Stats for GitHub does not collect, store, or transmit any personal data. The
 
 ## 2. Permissions
 
-The extension requires access to coursera.org to modify the layout and enhance usability. This permission is strictly used to improve your experience and do not involve data collection.
+The extension requires access to github.com to retrieve repository information and inject NPM package statistics directly into GitHub pages. This permission is strictly used to improve your experience and do not involve data collection.
 
 ## 3. Third-Party Services
 
