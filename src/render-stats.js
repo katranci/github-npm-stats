@@ -1,45 +1,45 @@
-const renderChart = (chartCanvas, stats) => {
-  const ctx = chartCanvas.getContext("2d")
-  const chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: stats.apiResponse.downloads.map((d) => d.day),
-      datasets: [
-        {
-          label: "Downloads",
-          data: stats.apiResponse.downloads.map((d) => d.downloads),
-          borderWidth: 1,
-          borderColor: "#28a745"
-        }
-      ]
-    },
-    options: {
-      legend: {
-        display: false
-      },
-      scales: {
-        yAxes: [
-          {
-            ticks: {
-              callback(value, index, values) {
-                return value.toLocaleString()
-              }
-            }
-          }
-        ]
-      }
-    }
+const renderSparkline = (container, stats) => {
+  const downloads = stats.apiResponse.downloads.map((d) => d.downloads)
+  const width = 280
+  const height = 60
+  const padding = 4
+
+  const maxValue = Math.max(...downloads)
+  const minValue = Math.min(...downloads)
+  const range = maxValue - minValue || 1
+
+  const points = downloads.map((value, index) => {
+    const x = padding + (index / (downloads.length - 1)) * (width - padding * 2)
+    const y = height - padding - ((value - minValue) / range) * (height - padding * 2)
+    return `${x},${y}`
   })
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg")
+  svg.setAttribute("width", width)
+  svg.setAttribute("height", height)
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`)
+  svg.style.display = "block"
+
+  const polyline = document.createElementNS("http://www.w3.org/2000/svg", "polyline")
+  polyline.setAttribute("points", points.join(" "))
+  polyline.setAttribute("fill", "none")
+  polyline.setAttribute("stroke", "#28a745")
+  polyline.setAttribute("stroke-width", "1.5")
+  polyline.setAttribute("stroke-linejoin", "round")
+  polyline.setAttribute("stroke-linecap", "round")
+
+  svg.appendChild(polyline)
+  container.appendChild(svg)
 }
 
 const renderStats = (packageName, stats) => {
   const pageheadActions = document.querySelector("ul.pagehead-actions")
 
   const observer = new MutationObserver(() => {
-    const chartCanvas = document.getElementById("npm-stats-chart")
-    if (!chartCanvas) return
+    const chartContainer = document.getElementById("npm-stats-chart")
+    if (!chartContainer) return
     observer.disconnect()
-    renderChart(chartCanvas, stats)
+    renderSparkline(chartContainer, stats)
   })
 
   observer.observe(pageheadActions, { childList: true })
@@ -71,7 +71,7 @@ const renderStats = (packageName, stats) => {
           <dt>Last month</dt>
           <dd>${stats.lastMonth.toLocaleString()}</dd>
         </dl>
-        <canvas id="npm-stats-chart"></canvas>
+        <div id="npm-stats-chart"></div>
       </details-menu>
     </details>
   `

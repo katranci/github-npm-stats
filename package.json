@@ -11,7 +11,6 @@
     "test": "vitest"
   },
   "dependencies": {
-    "chart.js": "2.7.0",
     "plasmo": "0.90.5"
   },
   "devDependencies": {
