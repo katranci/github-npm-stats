@@ -25,7 +25,7 @@ describe("formatNumber", () => {
     })
   })
 
-  describe("millions (1M+)", () => {
+  describe("millions (1M - 999M)", () => {
     it("formats round millions without decimal", () => {
       expect(formatNumber(1000000)).toBe("1M")
       expect(formatNumber(2000000)).toBe("2M")
@@ -38,6 +38,20 @@ describe("formatNumber", () => {
       expect(formatNumber(3200900)).toBe("3.2M")
       expect(formatNumber(52025285)).toBe("52M")
       expect(formatNumber(213462906)).toBe("213.5M")
+    })
+  })
+
+  describe("billions (1B+)", () => {
+    it("formats round billions without decimal", () => {
+      expect(formatNumber(1000000000)).toBe("1B")
+      expect(formatNumber(2000000000)).toBe("2B")
+      expect(formatNumber(10000000000)).toBe("10B")
+    })
+
+    it("formats non-round billions with one decimal", () => {
+      expect(formatNumber(1398300000)).toBe("1.4B")
+      expect(formatNumber(1500000000)).toBe("1.5B")
+      expect(formatNumber(2300000000)).toBe("2.3B")
     })
   })
 })
