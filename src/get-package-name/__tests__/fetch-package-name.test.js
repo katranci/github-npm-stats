@@ -1,7 +1,9 @@
 import fetchPackageName from "../fetch-package-name"
 import resolvePrivatePackageMock from "../resolve-private-package"
+import resolveMonorepoPackageMock from "../resolve-monorepo-package"
 
 vi.mock("../resolve-private-package")
+vi.mock("../resolve-monorepo-package")
 
 const apiResponse = (options = {}) => {
   const packageJson = {
@@ -120,6 +122,67 @@ describe("fetchPackageName", () => {
 
       const packageName = await fetchPackageName("vuejs", "vue")
       expect(packageName).toBeNull()
+    })
+  })
+
+  describe("if package is a monorepo with workspaces", () => {
+    beforeEach(() => {
+      fetch.mockImplementation((url) => {
+        return Promise.resolve({
+          json: () =>
+            Promise.resolve(
+              apiResponse({
+                packageJson: {
+                  name: "next.js-monorepo",
+                  workspaces: ["packages/*"]
+                }
+              })
+            )
+        })
+      })
+    })
+
+    it("returns package name if monorepo package is resolved", async () => {
+      resolveMonorepoPackageMock.mockReturnValue(Promise.resolve("next"))
+
+      const packageName = await fetchPackageName("vercel", "next.js")
+
+      expect(resolveMonorepoPackageMock).toHaveBeenCalledWith("vercel", "next.js")
+      expect(packageName).toBe("next")
+    })
+
+    it("returns N/A if monorepo package cannot be resolved", async () => {
+      resolveMonorepoPackageMock.mockReturnValue(Promise.resolve(null))
+
+      const packageName = await fetchPackageName("vercel", "next.js")
+      expect(packageName).toBe("N/A")
+    })
+  })
+
+  describe("if package is private with no name (monorepo pattern)", () => {
+    beforeEach(() => {
+      fetch.mockImplementation((url) => {
+        return Promise.resolve({
+          json: () =>
+            Promise.resolve(
+              apiResponse({
+                packageJson: {
+                  name: undefined,
+                  private: true
+                }
+              })
+            )
+        })
+      })
+    })
+
+    it("treats as monorepo and tries to resolve", async () => {
+      resolveMonorepoPackageMock.mockReturnValue(Promise.resolve("react"))
+
+      const packageName = await fetchPackageName("facebook", "react")
+
+      expect(resolveMonorepoPackageMock).toHaveBeenCalledWith("facebook", "react")
+      expect(packageName).toBe("react")
     })
   })
 })

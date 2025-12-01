@@ -1,45 +1,14 @@
-const renderChart = (chartCanvas, stats) => {
-  const ctx = chartCanvas.getContext("2d")
-  const chart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: stats.apiResponse.downloads.map((d) => d.day),
-      datasets: [
-        {
-          label: "Downloads",
-          data: stats.apiResponse.downloads.map((d) => d.downloads),
-          borderWidth: 1,
-          borderColor: "#28a745"
-        }
-      ]
-    },
-    options: {
-      legend: {
-        display: false
-      },
-      scales: {
-        yAxes: [
-          {
-            ticks: {
-              callback(value, index, values) {
-                return value.toLocaleString()
-              }
-            }
-          }
-        ]
-      }
-    }
-  })
-}
+import formatNumber from "./format-number"
+import renderSparkline from "./render-sparkline"
 
 const renderStats = (packageName, stats) => {
   const pageheadActions = document.querySelector("ul.pagehead-actions")
 
   const observer = new MutationObserver(() => {
-    const chartCanvas = document.getElementById("npm-stats-chart")
-    if (!chartCanvas) return
+    const chartContainer = document.getElementById("npm-stats-chart")
+    if (!chartContainer) return
     observer.disconnect()
-    renderChart(chartCanvas, stats)
+    renderSparkline(chartContainer, stats)
   })
 
   observer.observe(pageheadActions, { childList: true })
@@ -57,7 +26,7 @@ const renderStats = (packageName, stats) => {
     </a>
     <details class="details-reset details-overlay select-menu float-left">
       <summary class="social-count select-menu-button" aria-haspopup="menu" role="button" aria-label="Toggle npm stats menu">
-        ${stats.lastDay.toLocaleString()}
+        ${formatNumber(stats.lastWeek)}
       </summary>
       <details-menu class="select-menu-modal position-absolute mt-5">
         <div class="select-menu-header">
@@ -65,13 +34,13 @@ const renderStats = (packageName, stats) => {
         </div>
         <dl>
           <dt>Last day</dt>
-          <dd>${stats.lastDay.toLocaleString()}</dd>
+          <dd>${formatNumber(stats.lastDay)}</dd>
           <dt>Last week</dt>
-          <dd>${stats.lastWeek.toLocaleString()}</dd>
+          <dd>${formatNumber(stats.lastWeek)}</dd>
           <dt>Last month</dt>
-          <dd>${stats.lastMonth.toLocaleString()}</dd>
+          <dd>${formatNumber(stats.lastMonth)}</dd>
         </dl>
-        <canvas id="npm-stats-chart"></canvas>
+        <div id="npm-stats-chart"></div>
       </details-menu>
     </details>
   `

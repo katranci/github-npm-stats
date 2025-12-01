@@ -1,6 +1,5 @@
 import type { PlasmoCSConfig } from "plasmo"
 
-import "chart.js"
 import "./styles.css"
 import "./index"
 
