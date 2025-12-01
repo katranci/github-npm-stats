@@ -1,16 +1,12 @@
-const formatNumber = (num) => {
-  if (num >= 1000000) return (num / 1000000).toFixed(1) + "M"
-  if (num >= 1000) return (num / 1000).toFixed(0) + "K"
-  return num.toString()
-}
+import formatNumber from "./format-number"
 
 const renderSparkline = (container, stats) => {
   const downloads = stats.apiResponse.downloads.map((d) => d.downloads)
-  const width = 280
-  const height = 80
+  const width = 300
+  const height = 90
   const paddingX = 4
   const paddingTop = 14
-  const paddingBottom = 4
+  const paddingBottom = 14
   const chartHeight = height - paddingTop - paddingBottom
 
   const maxValue = Math.max(...downloads)
@@ -94,7 +90,7 @@ const renderSparkline = (container, stats) => {
     const minPoint = points[minIndex]
     const minLabel = document.createElementNS("http://www.w3.org/2000/svg", "text")
     minLabel.setAttribute("x", Math.min(Math.max(minPoint.x, 20), width - 20))
-    minLabel.setAttribute("y", height - paddingBottom + 10)
+    minLabel.setAttribute("y", height - 2)
     minLabel.setAttribute("text-anchor", "middle")
     minLabel.setAttribute("font-size", "10")
     minLabel.setAttribute("fill", "#6a737d")
@@ -130,7 +126,7 @@ const renderStats = (packageName, stats) => {
     </a>
     <details class="details-reset details-overlay select-menu float-left">
       <summary class="social-count select-menu-button" aria-haspopup="menu" role="button" aria-label="Toggle npm stats menu">
-        ${stats.lastDay.toLocaleString()}
+        ${formatNumber(stats.lastDay)}
       </summary>
       <details-menu class="select-menu-modal position-absolute mt-5">
         <div class="select-menu-header">
@@ -138,11 +134,11 @@ const renderStats = (packageName, stats) => {
         </div>
         <dl>
           <dt>Last day</dt>
-          <dd>${stats.lastDay.toLocaleString()}</dd>
+          <dd>${formatNumber(stats.lastDay)}</dd>
           <dt>Last week</dt>
-          <dd>${stats.lastWeek.toLocaleString()}</dd>
+          <dd>${formatNumber(stats.lastWeek)}</dd>
           <dt>Last month</dt>
-          <dd>${stats.lastMonth.toLocaleString()}</dd>
+          <dd>${formatNumber(stats.lastMonth)}</dd>
         </dl>
         <div id="npm-stats-chart"></div>
       </details-menu>
