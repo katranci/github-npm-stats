@@ -26,7 +26,7 @@ const renderStats = (packageName, stats) => {
     </a>
     <details class="details-reset details-overlay select-menu float-left">
       <summary class="social-count select-menu-button" aria-haspopup="menu" role="button" aria-label="Toggle npm stats menu">
-        ${formatNumber(stats.lastDay)}
+        ${formatNumber(stats.lastWeek)}/wk
       </summary>
       <details-menu class="select-menu-modal position-absolute mt-5">
         <div class="select-menu-header">
