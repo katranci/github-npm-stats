@@ -48,10 +48,16 @@ describe("formatNumber", () => {
       expect(formatNumber(10000000000)).toBe("10B")
     })
 
-    it("formats non-round billions with one decimal", () => {
-      expect(formatNumber(1398300000)).toBe("1.4B")
+    it("formats billions with one decimal when second decimal is zero", () => {
       expect(formatNumber(1500000000)).toBe("1.5B")
       expect(formatNumber(2300000000)).toBe("2.3B")
+    })
+
+    it("formats billions with two decimals for more precision", () => {
+      expect(formatNumber(1398300000)).toBe("1.4B")
+      expect(formatNumber(1450000000)).toBe("1.45B")
+      expect(formatNumber(1234000000)).toBe("1.23B")
+      expect(formatNumber(2567000000)).toBe("2.57B")
     })
   })
 })
